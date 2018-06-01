@@ -230,6 +230,8 @@ void setup()
   {
     cycleCount[i_wall] = 0;
   }
+
+  //while(true){};
 }
 
 //=============== LOOP ==================

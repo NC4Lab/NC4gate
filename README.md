@@ -148,3 +148,10 @@ conda env export > nc4gate_env.yml
 | 1  | 1  | 1  | 1  | 0  | 1  | 01011110 | 0x5E  |
 | 0  | 0  | 0  | 0  | 1  | 1  | 01100000 | 0x60  |
 | 1  | 0  | 0  | 0  | 1  | 1  | 01100010 | 0x62  |
+
+
+# Licensing
+
+* **Hardware design files** (for the NC4gate) are released under the **CERN-OHL-W** license.
+    
+* **Analysis code in this repository** is released under the Apache-2.0 license (see `LICENSE`).
