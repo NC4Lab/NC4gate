@@ -1,0 +1,20 @@
+{
+  "name": "CypressCom",
+  "version": "1.0.0",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github/CypressCom"
+  },
+  "authors":
+  [
+    {
+      "name": "Adam Lester"
+    }
+  ],
+  "dependencies": {
+    "MazeDebug": ">=1.0.0 ../MazeDebug"
+  },
+  "frameworks": "*",
+  "platforms": "*"
+}

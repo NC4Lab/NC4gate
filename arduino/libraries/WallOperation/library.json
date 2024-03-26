@@ -1,0 +1,21 @@
+{
+  "name": "WallOperation",
+  "version": "1.0.0",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github/WallOperation"
+  },
+  "authors":
+  [
+    {
+      "name": "Adam Lester"
+    }
+  ],
+  "dependencies": {
+    "CypressCom": ">=1.0.0 ../CypressCom",
+    "EsmacatCom": ">=1.0.0 ../EsmacatCom"
+  },
+  "frameworks": "*",
+  "platforms": "*"
+}

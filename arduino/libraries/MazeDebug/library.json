@@ -1,0 +1,17 @@
+{
+  "name": "MazeDebug",
+  "version": "1.0.0",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github/MazeDebug"
+  },
+  "authors":
+  [
+    {
+      "name": "Adam Lester"
+    }
+  ],
+  "platform": "ar",
+  "framework": "*"
+}
