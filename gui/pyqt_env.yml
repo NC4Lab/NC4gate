@@ -1,0 +1,8 @@
+name: pyqt
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - pyqt
+  - qtpy
+  - pyserial
