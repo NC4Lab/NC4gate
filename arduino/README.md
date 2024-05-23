@@ -1,8 +1,7 @@
 arduino
 ├── arduino_scripts
-│   └── MazeWallOperation
+│   └── wall_operation
 │   	└── platformio.ini
-│   	└── MazeWallOperation.code-workspace
 │   	└── src
 │   		└── main.cpp
 ├── libraries
