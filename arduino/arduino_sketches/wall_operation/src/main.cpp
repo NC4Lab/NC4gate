@@ -13,7 +13,6 @@
 #include <Wire.h>
 
 // CUSTOM
-#include <EsmacatCom.h>
 #include <MazeDebug.h>
 #include <CypressCom.h>
 #include <WallOperation.h>
