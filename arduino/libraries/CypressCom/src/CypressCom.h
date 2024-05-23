@@ -37,17 +37,15 @@ public:
 	// Global address variable
 	uint8_t ADDR = 0; /// tracks current I2C address for debugging
 
-	// // 1x3 testing addresses
-	// uint8_t ADDR_LIST[8]{
-	// 	0x2, 0x4,
+	// 1x3 testing addresses
+	uint8_t ADDR_LIST[1]{
+		0x0C};
+
+	// // 3x3 maze addresses
+	// uint8_t ADDR_LIST[9]{
+	// 	0x2, 0x4, 0x6,
 	// 	0x8, 0xA, 0xC,
 	// 	0xE, 0x10, 0x12};
-
-	// 3x3 maze addresses
-	uint8_t ADDR_LIST[9]{
-		0x2, 0x4, 0x6,
-		0x8, 0xA, 0xC,
-		0xE, 0x10, 0x12};
 
 	// // 7x7 maze addresses
 	//  uint8_t ADDR_LIST[49]{ /// list of all possible I2C addresses
