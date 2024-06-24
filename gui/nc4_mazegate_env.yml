@@ -1,4 +1,4 @@
-name: pyqt
+name: nc4_mazegate_env
 channels:
   - conda-forge
   - defaults

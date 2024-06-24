@@ -39,7 +39,7 @@ public:
 
 	// 1x3 testing addresses
 	uint8_t ADDR_LIST[1]{
-		0x0C};
+		0x22};
 
 	// // 3x3 maze addresses
 	// uint8_t ADDR_LIST[9]{
