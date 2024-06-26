@@ -13,11 +13,11 @@
 #include "Arduino.h"
 #include <Wire.h>
 #include "CypressComBase.h"
-#include "MazeDebug.h"
+#include "GateDebug.h"
 
 /// @brief This class handles all of the Cypress chip I2C comms.
 ///
-/// @remarks This class uses an instance of the MazeDebug class.
+/// @remarks This class uses an instance of the GateDebug class.
 ///
 /// @remarks Status codes from @ref Wire::beginTransmission()
 /// 	0: Success. Indicates that the transmission was successful.
@@ -66,7 +66,7 @@ public:
 	const uint8_t pwmPeriodVal = 32; /// PWM period of the PWM counter(1 - 255).Devisor for hardward clock
 
 private:
-	MazeDebug _Dbg; /// unique instance of MazeDebug class
+	GateDebug _Dbg; /// unique instance of GateDebug class
 
 	// -----------METHODS-----------------
 public:

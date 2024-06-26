@@ -1,7 +1,7 @@
 {
     "configurations": [
         {
-            "name": "MazeDebug_Configuration",
+            "name": "GateDebug_Configuration",
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/../**",

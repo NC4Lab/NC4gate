@@ -5,7 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/../**",
-                "${workspaceFolder}/../MazeDebug/src",
+                "${workspaceFolder}/../GateDebug/src",
                 "${workspaceFolder}/../CypressCom/src",
                 "${workspaceFolder}/../EsmacatCom/src",
                 "${env:HOME}/.platformio/packages/framework-arduino-avr/cores/arduino",

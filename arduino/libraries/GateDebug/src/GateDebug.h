@@ -1,10 +1,10 @@
 // ######################################
 
-//=========== MazeDebug.h =============
+//=========== GateDebug.h =============
 
 // ######################################
 
-/// @file Used for the MazeDebug class
+/// @file Used for the GateDebug class
 
 //============= INCLUDE ================
 #include "Arduino.h"
@@ -18,7 +18,7 @@ extern bool DB_VERBOSE; ///< set this variable in your INO file to control debug
 /// @brief Used for printing different types of information to the Serial Output Window.
 ///
 /// @remarks This class is used in both the CypressComm and WallOperation classes.
-class MazeDebug
+class GateDebug
 {
 
 	// ---------------VARIABLES---------------
@@ -47,7 +47,7 @@ public:
 
 	// ---------------METHODS---------------
 public:
-	MazeDebug();
+	GateDebug();
 
 public:
 	void printMsg(MT, const char *, ...);

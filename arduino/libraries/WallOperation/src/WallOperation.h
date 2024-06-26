@@ -8,14 +8,14 @@
 
 //============= INCLUDE ================
 #include "Arduino.h"
-#include "MazeDebug.h"
+#include "GateDebug.h"
 #include "CypressCom.h"
 #include "EsmacatCom.h"
 
 /// @brief This class handles the actual opperation of the maze walls and Ethercat coms.
 ///
 /// @remarks
-/// This class uses an instance of the MazeDebug and CypressCom classes.
+/// This class uses an instance of the GateDebug and CypressCom classes.
 /// This class also deals with the mapping of walls to associated Cypress pins.
 /// This class also deals with incoming and outgoing Ethercat communication.
 class WallOperation
@@ -107,7 +107,7 @@ public:
 	EsmacatCom EsmaCom; // instance of EsmacatCom class using SPI chip select pin 10
 
 private:
-	MazeDebug _Dbg;		// local instance of MazeDebug class
+	GateDebug _Dbg;		// local instance of GateDebug class
 	CypressCom _CypCom; // local instance of CypressCom class
 
 	// ---------------METHODS---------------

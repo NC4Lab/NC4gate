@@ -9,7 +9,7 @@
 
 //========DEFINES: EsmacatCom==========
 
-MazeDebug EsmacatCom::_Dbg; ///< static local instance of MazeDebug class
+GateDebug EsmacatCom::_Dbg; ///< static local instance of GateDebug class
 
 //========CLASS: EsmacatCom==========
 
@@ -571,7 +571,7 @@ void EsmacatCom::writeEcatAck(ErrorType error_type_enum, uint8_t p_msg_arg_data[
 /// @brief Used for printing curren Ethercat register values.
 ///
 /// @param msg_type_enum Enum specifying message type.
-void EsmacatCom::_printEcatReg(MazeDebug::MT msg_type_enum)
+void EsmacatCom::_printEcatReg(GateDebug::MT msg_type_enum)
 {
     RegUnion U;
 
@@ -584,7 +584,7 @@ void EsmacatCom::_printEcatReg(MazeDebug::MT msg_type_enum)
 /// @overload: Option for printing Ethercat register values from an array.
 ///
 /// @param p_reg: An array of existing register values.
-void EsmacatCom::_printEcatReg(MazeDebug::MT msg_type_enum, int p_reg[])
+void EsmacatCom::_printEcatReg(GateDebug::MT msg_type_enum, int p_reg[])
 {
     RegUnion U;
 
@@ -598,7 +598,7 @@ void EsmacatCom::_printEcatReg(MazeDebug::MT msg_type_enum, int p_reg[])
 /// @overload Option for printing Ethercat register values stored in RegUnion.
 ///
 /// @param U: A RegUnion object containing the register values to print.
-void EsmacatCom::_printEcatReg(MazeDebug::MT msg_type_enum, RegUnion U)
+void EsmacatCom::_printEcatReg(GateDebug::MT msg_type_enum, RegUnion U)
 {
     // Print out register
     _Dbg.printMsg(_Dbg.MT::INFO, "\t Ecat 16-Bit Register:");

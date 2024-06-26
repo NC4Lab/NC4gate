@@ -1,0 +1,17 @@
+{
+  "name": "GateDebug",
+  "version": "1.0.0",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github/GateDebug"
+  },
+  "authors":
+  [
+    {
+      "name": "Adam Lester"
+    }
+  ],
+  "platform": "ar",
+  "framework": "*"
+}

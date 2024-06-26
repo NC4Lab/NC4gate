@@ -13,7 +13,7 @@
     }
   ],
   "dependencies": {
-    "MazeDebug": ">=1.0.0 ../MazeDebug"
+    "GateDebug": ">=1.0.0 ../GateDebug"
   },
   "frameworks": "*",
   "platforms": "*"

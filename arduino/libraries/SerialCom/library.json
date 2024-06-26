@@ -1,10 +1,10 @@
 {
-  "name": "MazeDebug",
+  "name": "SerialCom",
   "version": "1.0.0",
   "repository":
   {
     "type": "git",
-    "url": "https://github/MazeDebug"
+    "url": "https://github/SerialCom"
   },
   "authors":
   [
@@ -12,6 +12,6 @@
       "name": "Adam Lester"
     }
   ],
-  "platform": "ar",
-  "framework": "*"
+  "frameworks": "*",
+  "platforms": "*"
 }

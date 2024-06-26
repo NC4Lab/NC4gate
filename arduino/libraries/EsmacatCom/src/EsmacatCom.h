@@ -8,7 +8,7 @@
 
 //============= INCLUDE ================
 #include "Arduino.h"
-#include "MazeDebug.h"
+#include "GateDebug.h"
 //#include "CypressCom.h"
 #include "SPI.h"
 
@@ -160,7 +160,7 @@ public:
     EcatMessageStruct rcvEM; //  initialize message handler instance for receiving messages
 
 private:
-    static MazeDebug _Dbg;      // local instance of MazeDebug class
+    static GateDebug _Dbg;      // local instance of GateDebug class
     int ecatPinCS;               // chip select pin for ethercat shield
     SPISettings ecatSettingsSPI; // SPI settings for ethercat shield
 
@@ -226,9 +226,9 @@ public:
     void writeEcatAck(ErrorType, uint8_t[] = nullptr, uint8_t = 0);
 
 private:
-    void _printEcatReg(MazeDebug::MT);
-    void _printEcatReg(MazeDebug::MT, int[]);
-    void _printEcatReg(MazeDebug::MT, RegUnion);
+    void _printEcatReg(GateDebug::MT);
+    void _printEcatReg(GateDebug::MT, int[]);
+    void _printEcatReg(GateDebug::MT, RegUnion);
 };
 
 #endif

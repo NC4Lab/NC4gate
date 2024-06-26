@@ -14,8 +14,9 @@
 
 // CUSTOM
 #include <EsmacatCom.h>
-#include <MazeDebug.h>
+#include <GateDebug.h>
 #include <CypressCom.h>
+#include <SerialCom.h>
 #include <WallOperation.h>
 
 //============ VARIABLES ===============
@@ -32,24 +33,28 @@ uint8_t pwmDuty = 255;         // PWM duty for all walls [0-255]
 uint16_t dtMoveTimeout = 1000; // timeout for wall movement (ms)
 
 // // Initialize class instances for local libraries
-MazeDebug Dbg;
+GateDebug Dbg;
 CypressCom CypCom;
+SerialCom SerCom(Serial1);
 WallOperation WallOper(nCham, nChamPerBlock, nMoveAttempt, pwmDuty, dtMoveTimeout);
 
 //=============== SETUP =================
 void setup()
 {
-  // Setup serial coms
+  // Setup serial coms for serial monoitor
   Serial.begin(115200);
-  Serial1.begin(115200);
   delay(100);
   Serial.print('\n');
+
+  // Setup serial coms for SerialCom
+  SerCom.begin(115200);
 
   // Print setup started
   Dbg.printMsg(Dbg.MT::HEAD1, "RUNNING SETUP");
 
   // Initialize I2C for Cypress chips
   CypCom.i2cInit();
+  while(true);
 
 // Print which microcontroller is active
 #ifdef ARDUINO_AVR_UNO
@@ -66,6 +71,31 @@ void setup()
 //=============== LOOP ==================
 void loop()
 {
+  String receivedMessage;
+
+  // Check if a message is received
+  if (SerCom.receiveMessage(receivedMessage))
+  {
+    // Print the received message to the Serial Monitor
+    Serial.print("Received: ");
+    Serial.println(receivedMessage);
+
+    // Process the received message (for example, toggle an LED)
+    if (receivedMessage == "Q")
+    {
+      Dbg.printMsg(Dbg.MT::INFO, "Query Acknowledged"); 
+    }
+    else
+    {
+      Dbg.printMsg(Dbg.MT::INFO, "Unknown Command");
+    }
+  }
+
+  
+  // while (Serial1.available())
+  // {
+  //   Serial.write(Serial1.read());
+  // }
 
   //............... ROS Controlled ...............
 
@@ -93,11 +123,6 @@ void loop()
 
   //   Dbg.printMsg(Dbg.MT::HEAD1B, "FINISHED: STANDALONE SETUP");
   // }
-
-  while (Serial1.available())
-  {
-    Serial.write(Serial1.read());
-  }
 
   // //............... Cypress Testing ...............
 
