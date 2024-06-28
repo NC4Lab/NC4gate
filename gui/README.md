@@ -7,10 +7,10 @@ https://www.anaconda.com/download/success
 Only needed if you are modifying the GUI
 https://www.qt.io/download
 
-## Development 
-### In a conda-enabled terminal, create an environment with pyqt installed
+## Setup
 
-- Open Anaconda terminal
+### Create an environment which will install the needed packages
+- Open Anaconda terminal ("Anaconda Prompt")
 - Go to the gui directory
 ```
 cd gui
@@ -19,19 +19,13 @@ cd gui
 ```
 conda env create -f nc4_mazegate_env.yml
 ```
-- If needed you can remove the environemnt
+- If needed you can remove the environment
 ```
 conda remove --name nc4_mazegate_env --all
 ```
 
-### Set the python interpreter to the conda environment.
-- Go to Python: Select Interpreter
-- Example
-```
-Python 3.12.3 ('nc4_mazegate_env')
-```
-
-### Add/remove 
+### Activate the environment using the terminal
+- Open Anaconda terminal ("Anaconda Prompt")
 - Go to the gui directory
 ```
 cd gui
@@ -40,6 +34,18 @@ cd gui
 ```
 conda activate nc4_mazegate_env
 ```
+
+### Activate the environment using the VS Code
+- Go to:
+```
+Python: Select Interpreter
+```
+- Example:
+```
+Python 3.12.3 ('nc4_mazegate_env')
+```
+
+## Development 
 - Add a package (example: numpy)
 ```
 conda install numpy

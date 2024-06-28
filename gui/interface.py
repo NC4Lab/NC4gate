@@ -13,6 +13,8 @@ import serial.tools.list_ports
 from PyQt5.QtCore import QThread, pyqtSignal
 
 # Define the main application class inheriting from QMainWindow
+
+
 class GateControlApp(QMainWindow):
     def __init__(self):
         super().__init__()  # Initialize the parent class
@@ -42,7 +44,7 @@ class GateControlApp(QMainWindow):
         # Connect the gates initialization button click event to the handler
         self.ui_widget.init_gates_button.clicked.connect(
             self.callback_init_gates_button)
-        
+
         # Connect the send gate configuration button click event to the handler
         self.ui_widget.send_gate_config_button.clicked.connect(
             self.callback_send_gate_config_button)
@@ -147,7 +149,7 @@ class GateControlApp(QMainWindow):
 
     # Method to handle cypress initialization button press
     def callback_init_system_button(self):
-    
+
         # Get selected com port
         com_port = self.ui_widget.com_port_combo_box.currentText()
 
@@ -178,24 +180,27 @@ class GateControlApp(QMainWindow):
 
             # Loop through the gates and check if the respective button is active
             for gate in gate_array:
-                if self.widget_groups[i]['buttons'][gate].isChecked():  # Check if the button is pressed
+                # Check if the button is pressed
+                if self.widget_groups[i]['buttons'][gate].isChecked():
                     active_gates_array.append(gate)
 
             # Update the gates array with active gates
             self.cypress_list[i]['active_gates'] = active_gates_array
 
             # Convert array index to a byte and store it in the byte array
-            active_gates_byte_array[i] = self.ind_array_2_byte(active_gates_array)
+            active_gates_byte_array[i] = self.ind_array_2_byte(
+                active_gates_array)
 
             # Print the active gates for debugging
-            print(f"Send move command for Cypress {i} Gates {active_gates_array}")
+            print(
+                f"Send move command for Cypress {i} Gates {active_gates_array}")
 
         # Send the gate configuration message
         self.send_message(2, active_gates_byte_array)
 
     # Method to send a message to the Arduino via serial
     def send_message(self, msg_type, data):
-    
+
         if self.arduino and self.arduino.isOpen():
             # Convert the message type to a single byte
             msg_type_byte = msg_type.to_bytes(1, 'little')
@@ -287,17 +292,17 @@ class GateControlApp(QMainWindow):
                     # print(f"  End Byte: {self.END_BYTE}")
                     # print(f"  Full Message: {[byte for byte in message]}")
                 else:
-                    print(f"Invalid checksum. Expected: {
-                          checksum_byte}, Calculated: {checksum_calculated}")
+                    print(f"Invalid checksum. Expected: {checksum_byte}, Calculated: {checksum_calculated}")
             else:
                 print(f"Invalid response format: {message}")
-            
 
     # Method to handle timeout
+
     def handle_timeout(self):
         error_msg = f"ERROR: No response for command: {self.pending_message} within {self.RESPONSE_TIMEOUT} ms"
-        print(error_msg) # Print the error message
-        self.ui_widget.error_label.setText(error_msg) # Display the error message
+        print(error_msg)  # Print the error message
+        self.ui_widget.error_label.setText(
+            error_msg)  # Display the error message
         self.timer_check_serial.stop()  # Stop checking for messages
         self.pending_message = None  # Clear the pending message
 
@@ -313,7 +318,7 @@ class GateControlApp(QMainWindow):
                 entry = {
                     # Set i2c_addr to the value from data
                     'i2c_addr': self.message_data['data'][i],
-                    'enabled_gates': [],  # Initialize entry 
+                    'enabled_gates': [],  # Initialize entry
                     'active_gates': []  # Initialize entry
                 }
                 self.cypress_list.append(entry)
@@ -322,7 +327,7 @@ class GateControlApp(QMainWindow):
                 self.widget_groups[i]['group_box'].setEnabled(True)
                 self.widget_groups[i]['group_box'].setStyleSheet(
                     "QGroupBox::title { color: green; }")
-                
+
                 # Change the I2C address label
                 self.widget_groups[i]['label'].setText(hex(entry['i2c_addr']))
 
@@ -338,7 +343,8 @@ class GateControlApp(QMainWindow):
             # Loop through the received data
             for i in range(self.message_data['length']):
                 # Store the enabled gates for each I2C addresses
-                gate_state = self.byte_2_ind_array(self.message_data['data'][i])
+                gate_state = self.byte_2_ind_array(
+                    self.message_data['data'][i])
                 self.cypress_list[i]['enabled_gates'] = gate_state
 
                 # Enable the buttons
@@ -354,26 +360,31 @@ class GateControlApp(QMainWindow):
             # Loop through the received data
             for i in range(self.message_data['length']):
                 # Get the returned gate states
-                gate_state = set(self.byte_2_ind_array(self.message_data['data'][i]))
+                gate_state = set(self.byte_2_ind_array(
+                    self.message_data['data'][i]))
 
                 # Get a list of gates that should be active
                 active_gates = set(self.cypress_list[i]['active_gates'])
 
                 # Find mismatched gates
-                mismatched_gates = list((active_gates - gate_state) | (gate_state - active_gates))
+                mismatched_gates = list(
+                    (active_gates - gate_state) | (gate_state - active_gates))
 
                 # Flag and print mismatched gates
                 for gate in mismatched_gates:
                     # Print the error message
-                    print(f"ERROR: Gate {gate} for Cypress {i} was not moved.") # Print the error message
-                    self.ui_widget.error_label.setText("ERROR: Gate move failed") # Display the error message
+                    # Print the error message
+                    print(f"ERROR: Gate {gate} for Cypress {i} was not moved.")
+                    self.ui_widget.error_label.setText(
+                        "ERROR: Gate move failed")  # Display the error message
                     # Make the button red
-                    self.widget_groups[i]['buttons'][gate].setStyleSheet("background-color: red;")
+                    self.widget_groups[i]['buttons'][gate].setStyleSheet(
+                        "background-color: red;")
 
     # Method to convert a byte to an array of indices corresponding to bits set to 1
     def byte_2_ind_array(self, byte):
         return [i for i in range(8) if byte & (1 << i)]
-    
+
     # Method to convert an array to a single byte with bits set to 1 for each index
     def ind_array_2_byte(self, array):
         byte = 0
@@ -381,6 +392,7 @@ class GateControlApp(QMainWindow):
             if 0 <= wall_i <= 7:
                 byte |= (1 << wall_i)
         return byte
+
 
 # Main entry point of the application
 if __name__ == "__main__":
