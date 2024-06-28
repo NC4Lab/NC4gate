@@ -1,10 +1,10 @@
 {
-  "name": "WallOperation",
+  "name": "GateOperation",
   "version": "1.0.0",
   "repository":
   {
     "type": "git",
-    "url": "https://github/WallOperation"
+    "url": "https://github/GateOperation"
   },
   "authors":
   [
@@ -13,8 +13,7 @@
     }
   ],
   "dependencies": {
-    "CypressCom": ">=1.0.0 ../CypressCom",
-    "EsmacatCom": ">=1.0.0 ../EsmacatCom"
+    "CypressCom": ">=1.0.0 ../CypressCom"
   },
   "frameworks": "*",
   "platforms": "*"

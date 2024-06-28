@@ -1,6 +1,6 @@
 // ######################################
 
-//========= WallOperation.h ===========
+//========= GateOperation.h ===========
 
 // ######################################
 #ifndef _WALL_OPERATION_h
@@ -10,15 +10,14 @@
 #include "Arduino.h"
 #include "GateDebug.h"
 #include "CypressCom.h"
-#include "EsmacatCom.h"
 
-/// @brief This class handles the actual opperation of the maze walls and Ethercat coms.
+/// @brief This class handles the actual operation of the maze walls and Ethercat coms.
 ///
 /// @remarks
 /// This class uses an instance of the GateDebug and CypressCom classes.
 /// This class also deals with the mapping of walls to associated Cypress pins.
 /// This class also deals with incoming and outgoing Ethercat communication.
-class WallOperation
+class GateOperation
 {
 
 	// --------------VARIABLES--------------
@@ -87,8 +86,6 @@ public:
 	};
 	CypressStruct C[maxCyp]; // initialize with max number of chambers for 3x3
 
-	EsmacatCom EsmaCom; // instance of EsmacatCom class using SPI chip select pin 10
-
 	CypressCom CypCom; // local instance of CypressCom class
 
 private:
@@ -97,7 +94,7 @@ private:
 	// ---------------METHODS---------------
 
 public:
-	WallOperation(uint8_t, uint16_t);
+	GateOperation(uint8_t, uint16_t);
 
 private:
 	void _makePMS(PinMapStruct &, uint8_t[], uint8_t[]);
@@ -119,7 +116,7 @@ private:
 	void _updateDynamicPMS(PinMapStruct, PinMapStruct &, uint8_t);
 
 public:
-	void initWallOper();
+	void initGateOperation();
 
 public:
 	uint8_t initCypress();

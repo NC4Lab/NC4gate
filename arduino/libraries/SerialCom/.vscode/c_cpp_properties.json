@@ -1,7 +1,7 @@
 {
     "configurations": [
         {
-            "name": "EsmacatCom_Configuration",
+            "name": "SerialCom_Configuration",
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/../**",

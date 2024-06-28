@@ -199,7 +199,7 @@ void CypressCom::_updateRegByte(uint8_t &r_byte_val_out, uint8_t byte_mask, uint
 /// @brief Read from a given IO pin associated with a given limit switch.
 ///
 /// @note This is only setup for input, not output, registers.
-/// @note See, for example, @ref WallOperation::wms.ioUp for wall to port mapping.
+/// @note See, for example, @ref GateOperation::wms.ioUp for wall to port mapping.
 ///
 /// @param address I2C address for a given Cypress chip.
 /// @param port Number of port to set [0-5].
@@ -224,7 +224,7 @@ uint8_t CypressCom::ioReadPin(uint8_t address, uint8_t port, uint8_t pin, uint8_
 
 /// @brief Read from a given IO pin associated with a given limit switch.
 ///
-/// @note See, for example, @ref WallOperation::wms.pwmUp for wall to port mapping.
+/// @note See, for example, @ref GateOperation::wms.pwmUp for wall to port mapping.
 ///
 /// @param address I2C address for a given Cypress chip.
 /// @param port Number of port to set [0-5].
@@ -404,7 +404,7 @@ uint8_t CypressCom::setupCypress(uint8_t address)
 /// @brief Sets up the different properties of the PWM source.
 ///
 /// @param address I2C address for a given Cypress chip.
-/// @param source Specifies one of 8 sources to set. See @ref WallOperation::wms.pwmSrc.
+/// @param source Specifies one of 8 sources to set. See @ref GateOperation::wms.pwmSrc.
 /// @param duty PWM duty cycle [0-255].
 ///
 /// @return Output from @ref Wire::endTransmission() [0-4] or [-1=255:input argument error].
@@ -435,7 +435,7 @@ uint8_t CypressCom::setupSourcePWM(uint8_t address, uint8_t source, uint8_t duty
 /// Sets up the different properties of the PWM source.
 ///
 /// @param address I2C address for a given Cypress chip.
-/// @param source Specifies one of 8 sources to set. See @ref WallOperation::wms.pwmSrc.
+/// @param source Specifies one of 8 sources to set. See @ref GateOperation::wms.pwmSrc.
 /// @param duty PWM duty cycle [0-255].
 ///
 /// @return Output from @ref Wire::endTransmission() [0-4] or [-1=255:input argument error].

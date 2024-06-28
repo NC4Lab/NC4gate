@@ -6,6 +6,10 @@
 
 /**
  * @file Main Arduino INO file for running the maze.
+ *
+ * @note Set DB_VERBOSE to 0 and use the "Serial" HardwareSerial port
+ * for SerCom(Serial) initialation if you are performing serial
+ * communication with the Arduino USB connection.
  */
 
 // BUILT IN
@@ -13,47 +17,39 @@
 #include <Wire.h>
 
 // CUSTOM
-#include <EsmacatCom.h>
 #include <GateDebug.h>
 #include <CypressCom.h>
 #include <SerialCom.h>
-#include <WallOperation.h>
+#include <GateOperation.h>
 
 //============ VARIABLES ===============
 
 // Global variables
-bool DB_VERBOSE = 1;  //< set to control debugging behavior [0:silent, 1:verbose]
+bool DB_VERBOSE = 0;  //< set to control debugging behavior [0:silent, 1:verbose]
 bool DO_ECAT_SPI = 1; //< set to control block SPI [0:dont start, 1:start]
 
-// Wall opperation setup
+// Gate operation setup
 uint8_t pwmDuty = 255;         // PWM duty for all walls [0-255]
 uint16_t dtMoveTimeout = 1000; // timeout for wall movement (ms)
 
-// // Initialize class instances for local libraries
-GateDebug Dbg;
-SerialCom SerCom(Serial1);
-WallOperation WallOper(pwmDuty, dtMoveTimeout);
+// Initialize class instances for local libraries
+GateDebug Dbg;                                  // Debugging class
+SerialCom SerCom(Serial);                       // Serial communication class
+GateOperation WallOper(pwmDuty, dtMoveTimeout); // Wall operation class
 
 //=============== SETUP =================
 void setup()
 {
   // Setup serial coms for serial monoitor
-  Serial.begin(115200);
-  delay(100);
-  Serial.print('\n');
+  /// @note Comment this out if SerialCom is using the "Serial" HardwareSerial port
+	// Serial.begin(115200);
+	// delay(100);
 
   // Setup serial coms for SerialCom
   SerCom.begin(115200);
 
-  // Print setup started
-  Dbg.printMsg(Dbg.MT::HEAD1, "RUNNING SETUP");
-
   // Initialize I2C for Cypress chips
   WallOper.CypCom.i2cInit();
-
-  // // Scan I2C bus for Cypress chips and store and print found addresses
-  // WallOper.CypCom.i2cScan();
-  // while(true);
 
 // Print which microcontroller is active
 #ifdef ARDUINO_AVR_UNO
@@ -82,8 +78,8 @@ void loop()
       // Scan I2C bus for Cypress chips and store and print found addresses
       WallOper.CypCom.i2cScan();
 
-      // Initialize wall opperation
-      WallOper.initWallOper();
+      // Initialize wall operation
+      WallOper.initGateOperation();
 
       // Initialize cypress chips
       WallOper.initCypress();
@@ -104,10 +100,6 @@ void loop()
       {
         msg_arg_arr[cyp_i] = WallOper.C[cyp_i].bitWallPosition;
       }
-
-      // TEMP
-      msg_arg_arr[0] = B00010101;
-      msg_arg_arr[1] = B11010000;
 
       // Send back wall states
       SerCom.sendMessage(SerCom.MD.msg_type, msg_arg_arr, WallOper.CypCom.nAddr);
@@ -130,7 +122,7 @@ void loop()
         WallOper.setWallsToMove(cyp_i, byte_wall_state_new);
       }
 
-            // Run move walls operation
+      // Run move walls operation
       WallOper.moveWallsConductor();
 
       // Store up walls as a byte array
@@ -145,33 +137,6 @@ void loop()
     }
   }
 
-  //............... ROS Controlled ...............
-
-  // // Check ethercat coms
-  // WallOper.EsmaCom.readEcatMessage();
-
-  // // Process and exicute ethercat arguments
-  // WallOper.procEcatMessage();
-
-  // //............... Standalone Setup ...............
-  // static bool init = 0;
-  // if (!init)
-  // {
-  //   init = 1;
-  //   Dbg.printMsg(Dbg.MT::HEAD1, "RUNNNING: STANDALONE SETUP");
-
-  //   // Initialize software
-  //   WallOper.initSoftware(0);
-
-  //   // Initalize Cypress Chips
-  //   WallOper.initCypress();
-
-  //   // Initalize Walls
-  //   WallOper.initWalls(0); // Run wall up and down
-
-  //   Dbg.printMsg(Dbg.MT::HEAD1B, "FINISHED: STANDALONE SETUP");
-  // }
-
   // //............... Cypress Testing ...............
 
   // // Test input pins
@@ -183,7 +148,7 @@ void loop()
   // WallOper.testWallPWM(0, a_wall, 1);
   // while (true);
 
-  // // Test wall opperation
+  // // Test wall operation
   // uint8_t a_wall[1] = { 1 };
   // WallOper.testWallOperation(0, a_wall, 1);
 }

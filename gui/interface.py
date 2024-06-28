@@ -13,8 +13,6 @@ import serial.tools.list_ports
 from PyQt5.QtCore import QThread, pyqtSignal
 
 # Define the main application class inheriting from QMainWindow
-
-
 class GateControlApp(QMainWindow):
     def __init__(self):
         super().__init__()  # Initialize the parent class
@@ -138,24 +136,6 @@ class GateControlApp(QMainWindow):
             for button in buttons:
                 button.setEnabled(False)
 
-        # # TEMP
-        # # Access the i2c_label associated with index 2
-        # i2c_label = self.widget_groups[2]['label']
-        # # Change the text of the label
-        # i2c_label.setText("New Label Text")
-        # # Access the button associated with group index 3 and button index 1
-        # button = self.widget_groups[3]['buttons'][1]
-        # # Disable the button
-        # button.setEnabled(False)
-        # # Disable the cypress_box associated with index 0
-        # group_box = self.widget_groups[0]['group_box']
-        # group_box.setEnabled(False)
-        # group_box.setStyleSheet("QGroupBox::title { color: gray; }")
-        # # Enable the cypress_box associated with index 1
-        # group_box = self.widget_groups[1]['group_box']
-        # group_box.setEnabled(True)
-        # group_box.setStyleSheet("QGroupBox::title { color: green; }")
-
     # Method to handle COM port selection from the combo box
     def com_port_selected(self):
         if self.ui_widget.com_port_combo_box.currentText() != "Select COM Port":
@@ -167,11 +147,12 @@ class GateControlApp(QMainWindow):
 
     # Method to handle cypress initialization button press
     def callback_init_system_button(self):
+    
         # Get selected com port
         com_port = self.ui_widget.com_port_combo_box.currentText()
 
         # Open a serial connection to the Arduino on the selected COM port
-        self.arduino = serial.Serial(com_port, 115200, timeout=1)
+        self.arduino = serial.Serial(com_port, 115200, timeout=1, dsrdtr=True)
 
         # Send the command to Arduino
         self.send_message(0, 0)
@@ -183,7 +164,7 @@ class GateControlApp(QMainWindow):
         # Send init gates message
         self.send_message(1, 0)
 
-        print(f"Initializing Gates...")
+        print(f"Initializing Gates")
 
     # Method to handle send gate configuration button press
     def callback_send_gate_config_button(self):
@@ -207,13 +188,14 @@ class GateControlApp(QMainWindow):
             active_gates_byte_array[i] = self.ind_array_2_byte(active_gates_array)
 
             # Print the active gates for debugging
-            print(f"Active gates for cypress list {i}: {active_gates_array} {active_gates_byte_array[i]}")
+            print(f"Send move command for Cypress {i} Gates {active_gates_array}")
 
         # Send the gate configuration message
         self.send_message(2, active_gates_byte_array)
 
     # Method to send a message to the Arduino via serial
     def send_message(self, msg_type, data):
+    
         if self.arduino and self.arduino.isOpen():
             # Convert the message type to a single byte
             msg_type_byte = msg_type.to_bytes(1, 'little')
@@ -244,7 +226,7 @@ class GateControlApp(QMainWindow):
             # Start the timeout timer
             self.timeout_timer.start(self.RESPONSE_TIMEOUT)
 
-            # # Print each part of the message
+            # Uncomment to print the sent message
             # print(f"Sent command to Arduino:")
             # print(f"  Start Byte: {self.START_BYTE}")
             # print(f"  Message Type Byte: {
@@ -293,7 +275,7 @@ class GateControlApp(QMainWindow):
                     # Process the received message
                     self.proc_receive_message()
 
-                    # # Print each part of the message
+                    # Uncomment to print the received message
                     # print(f"Received response from Arduino:")
                     # print(f"  Start Byte: {self.START_BYTE}")
                     # print(f"  Message Type Byte: {
@@ -309,9 +291,7 @@ class GateControlApp(QMainWindow):
                           checksum_byte}, Calculated: {checksum_calculated}")
             else:
                 print(f"Invalid response format: {message}")
-        elif self.pending_message:
-            # Restart the timer to check for response
-            self.timer_check_serial.start(self.MESSAGE_CHECK_DT)
+            
 
     # Method to handle timeout
     def handle_timeout(self):

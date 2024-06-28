@@ -8,7 +8,6 @@
 
 //============= INCLUDE ================
 #include "Arduino.h"
-#include "EsmacatCom.h"
 
 #ifndef _MAZE_DEBUG_h
 #define _MAZE_DEBUG_h
@@ -17,7 +16,7 @@ extern bool DB_VERBOSE; ///< set this variable in your INO file to control debug
 
 /// @brief Used for printing different types of information to the Serial Output Window.
 ///
-/// @remarks This class is used in both the CypressComm and WallOperation classes.
+/// @remarks This class is used in both the CypressComm and GateOperation classes.
 class GateDebug
 {
 
@@ -69,9 +68,6 @@ public:
 
 public:
 	const char *bitIndStr(uint8_t);
-
-public:
-	void printTest();
 };
 
 #endif

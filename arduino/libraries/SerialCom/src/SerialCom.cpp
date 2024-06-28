@@ -18,6 +18,12 @@ SerialCom::SerialCom(HardwareSerial &serial) : serial(serial) {}
 void SerialCom::begin(unsigned long baud)
 {
     serial.begin(baud);
+
+    // Clear the buffer
+    while (serial.available())
+    {
+        serial.read();
+    }
 }
 
 /// @brief Receives a message from the serial port.

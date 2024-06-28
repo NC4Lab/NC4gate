@@ -1,19 +1,19 @@
 // ######################################
 
-//======== WallOperation.cpp ==========
+//======== GateOperation.cpp ==========
 
 // ######################################
 
 //============= INCLUDE ================
-#include "WallOperation.h"
+#include "GateOperation.h"
 
 //======== CLASS: WALL_OPERATION ==========
 
-/// @brief CONSTUCTOR: Create WallOperation class instance
+/// @brief CONSTUCTOR: Create GateOperation class instance
 ///
 /// @param _nCham: Spcify number of cypress boards to track [1-49]
 /// @param _pwmDuty: Defualt duty cycle for all the pwm [0-255]
-WallOperation::WallOperation(uint8_t _pwmDuty, uint16_t _dtMoveTimeout)
+GateOperation::GateOperation(uint8_t _pwmDuty, uint16_t _dtMoveTimeout)
 {
 	// Store input variables
 	CypCom.nAddr = 0;
@@ -40,28 +40,28 @@ WallOperation::WallOperation(uint8_t _pwmDuty, uint16_t _dtMoveTimeout)
 
 //------------------------ DATA HANDELING ------------------------
 
-/// @brief Used to create @ref WallOperation::PinMapStruct (PMS) structs, which are used to
+/// @brief Used to create @ref GateOperation::PinMapStruct (PMS) structs, which are used to
 /// store information related to pin/port and wall mapping for specified functions
 /// (i.e., pwm, io, up, down)
 ///
 /// @note these methods are only used in the construtor
 ///
 /// @param r_pms: Reference to PMS to be updated
-/// @param p_port_1: Array of port values from an @ref WallOperation::WallMapStruct
-/// @param p_pin_1: Array of pin values from an @ref WallOperation::WallMapStruct
-void WallOperation::_makePMS(PinMapStruct &r_pms, uint8_t p_port_1[], uint8_t p_pin_1[])
+/// @param p_port_1: Array of port values from an @ref GateOperation::WallMapStruct
+/// @param p_pin_1: Array of pin values from an @ref GateOperation::WallMapStruct
+void GateOperation::_makePMS(PinMapStruct &r_pms, uint8_t p_port_1[], uint8_t p_pin_1[])
 {
 	_resetPMS(r_pms);
 	_addPortPMS(r_pms, p_port_1, p_pin_1);
 	_addPinPMS(r_pms, p_port_1, p_pin_1);
 }
 
-/// @overload: Option for additional @ref WallOperation::WallMapStruct entries used
+/// @overload: Option for additional @ref GateOperation::WallMapStruct entries used
 /// for creating PMS structs that include pins both up and down (e.g., all IO or all PWM pins)
 ///
-/// @param p_port_2: Array of port values from an @ref WallOperation::WallMapStruct
-/// @param p_pin_2: Array of pin values from an @ref WallOperation::WallMapStruct
-void WallOperation::_makePMS(PinMapStruct &r_pms, uint8_t p_port_1[], uint8_t p_pin_1[], uint8_t p_port_2[], uint8_t p_pin_2[])
+/// @param p_port_2: Array of port values from an @ref GateOperation::WallMapStruct
+/// @param p_pin_2: Array of pin values from an @ref GateOperation::WallMapStruct
+void GateOperation::_makePMS(PinMapStruct &r_pms, uint8_t p_port_1[], uint8_t p_pin_1[], uint8_t p_port_2[], uint8_t p_pin_2[])
 {
 	_resetPMS(r_pms);
 	_addPortPMS(r_pms, p_port_1, p_pin_1);
@@ -70,12 +70,12 @@ void WallOperation::_makePMS(PinMapStruct &r_pms, uint8_t p_port_1[], uint8_t p_
 	_addPinPMS(r_pms, p_port_2, p_pin_2);
 }
 
-/// @brief Used within @ref WallOperation::_makePMS to do the actual work of adding the pin entries to the PMS structs.
+/// @brief Used within @ref GateOperation::_makePMS to do the actual work of adding the pin entries to the PMS structs.
 ///
 /// @param r_pms: Reference to PMS to be updated
-/// @param p_port: Array of port values from an @ref WallOperation::WallMapStruct
-/// @param p_pin: Array of pin values from an @ref WallOperation::WallMapStruct
-void WallOperation::_addPortPMS(PinMapStruct &r_pms, uint8_t p_port[], uint8_t p_pin[])
+/// @param p_port: Array of port values from an @ref GateOperation::WallMapStruct
+/// @param p_pin: Array of pin values from an @ref GateOperation::WallMapStruct
+void GateOperation::_addPortPMS(PinMapStruct &r_pms, uint8_t p_port[], uint8_t p_pin[])
 {
 
 	for (size_t wal_i = 0; wal_i < 8; wal_i++)
@@ -93,12 +93,12 @@ void WallOperation::_addPortPMS(PinMapStruct &r_pms, uint8_t p_port[], uint8_t p
 	_sortArr(r_pms.portInc, 6);
 }
 
-/// @brief Used within @ref WallOperation::_makePMS to do the actual work of adding the port entries to the PMS structs.
+/// @brief Used within @ref GateOperation::_makePMS to do the actual work of adding the port entries to the PMS structs.
 ///
 /// @param r_pms: Reference to PMS to be updated.
-/// @param p_port: Array of port values from an @ref WallOperation::WallMapStruct.
-/// @param p_pin: Array of pin values from an @ref WallOperation::WallMapStruct.
-void WallOperation::_addPinPMS(PinMapStruct &r_pms, uint8_t p_port[], uint8_t p_pin[])
+/// @param p_port: Array of port values from an @ref GateOperation::WallMapStruct.
+/// @param p_pin: Array of pin values from an @ref GateOperation::WallMapStruct.
+void GateOperation::_addPinPMS(PinMapStruct &r_pms, uint8_t p_port[], uint8_t p_pin[])
 {
 	for (size_t prt_i = 0; prt_i < 6; prt_i++)
 	{ // loop ports in struct arr
@@ -136,7 +136,7 @@ void WallOperation::_addPinPMS(PinMapStruct &r_pms, uint8_t p_port[], uint8_t p_
 /// @param p_arr: Array to be sorted
 /// @param s: Length of array
 /// @param p_co_arr: OPTIONAL: array to be sorted in the same order as "p_arr"
-void WallOperation::_sortArr(uint8_t p_arr[], size_t s, uint8_t p_co_arr[])
+void GateOperation::_sortArr(uint8_t p_arr[], size_t s, uint8_t p_co_arr[])
 {
 	bool is_sorted = false;
 	while (!is_sorted)
@@ -168,7 +168,7 @@ void WallOperation::_sortArr(uint8_t p_arr[], size_t s, uint8_t p_co_arr[])
 /// @brief Initializes/Reinitializes entries in a dynamic PMS struct to there default values.
 ///
 /// @param r_pms: Reference to PMS struct to be reset
-void WallOperation::_resetPMS(PinMapStruct &r_pms)
+void GateOperation::_resetPMS(PinMapStruct &r_pms)
 {
 	r_pms.nPortsInc = 0;
 	for (size_t prt_i = 0; prt_i < 6; prt_i++)
@@ -190,7 +190,7 @@ void WallOperation::_resetPMS(PinMapStruct &r_pms)
 /// @param r_pms1: PMS struct to use as the basis for entries in "r_pms2"
 /// @param r_pms2: Reference to a PMS struct to update
 /// @param wall_byte_mask: Byte mask in which bits set to one denote the active walls to include in the "r_pms2" struct.
-void WallOperation::_updateDynamicPMS(PinMapStruct r_pms1, PinMapStruct &r_pms2, uint8_t wall_byte_mask)
+void GateOperation::_updateDynamicPMS(PinMapStruct r_pms1, PinMapStruct &r_pms2, uint8_t wall_byte_mask)
 {
 	for (size_t prt_i = 0; prt_i < r_pms1.nPortsInc; prt_i++)
 	{ // loop ports
@@ -230,7 +230,7 @@ void WallOperation::_updateDynamicPMS(PinMapStruct r_pms1, PinMapStruct &r_pms2,
 //------------------------ SETUP METHODS ------------------------
 
 /// @brief Initialize/reset all relivant runtime variables to prepare for new session
-void WallOperation::initWallOper()
+void GateOperation::initGateOperation()
 {
 	_Dbg.printMsg(_Dbg.MT::HEAD1A, "START: WALL OPPERATION INITIALIZATION");
 
@@ -258,7 +258,7 @@ void WallOperation::initWallOper()
 /// @brief Initialize/reset Cypress hardware
 ///
 /// @return Output from @ref Wire::endTransmission() [0-4] or [-1=255:input argument error].
-uint8_t WallOperation::initCypress()
+uint8_t GateOperation::initCypress()
 {
 	_Dbg.printMsg(_Dbg.MT::HEAD1A, "START: CYPRESS INITIALIZATION");
 
@@ -333,8 +333,8 @@ uint8_t WallOperation::initCypress()
 /// @brief Initialize/reset wall position
 ///
 /// @param move_dir: Specify move direction [0:down, 1:up]
-/// @return Success/error codes from @ref WallOperation::moveWallsByChamberBlocks()
-uint8_t WallOperation::initWalls(uint8_t move_dir)
+/// @return Success/error codes from @ref GateOperation::moveWallsByChamberBlocks()
+uint8_t GateOperation::initWalls(uint8_t move_dir)
 {
 	uint8_t run_status = 0;
 	_Dbg.printMsg(_Dbg.MT::HEAD1A, "START: WALL %s INITIALIZATION",
@@ -388,7 +388,7 @@ uint8_t WallOperation::initWalls(uint8_t move_dir)
 ///
 /// @param address: I2C address of Cypress chip to setup.
 /// @return method output from @ref Wire::endTransmission().
-uint8_t WallOperation::_setupCypressIO(uint8_t address)
+uint8_t GateOperation::_setupCypressIO(uint8_t address)
 {
 	uint8_t i2c_status = 0;
 
@@ -426,7 +426,7 @@ uint8_t WallOperation::_setupCypressIO(uint8_t address)
 ///
 /// @param address: I2C address of Cypress chip to setup.
 /// @return Wire::method output from @ref Wire::endTransmission() or [-1=255:input argument error].
-uint8_t WallOperation::_setupCypressPWM(uint8_t address)
+uint8_t GateOperation::_setupCypressPWM(uint8_t address)
 {
 	uint8_t i2c_status = 0;
 
@@ -467,10 +467,10 @@ uint8_t WallOperation::_setupCypressPWM(uint8_t address)
 ///
 /// @details Here's an example of how to use this overload:
 /// @code
-/// WallOperation::WallOper.setWallsToMove(cyp_i, 0, B00000110); // move walls 2 aind 3 down
-/// WallOperation::WallOper.setWallsToMove(cyp_i, 1, B00000110); // move walls 2 aind 3 up
+/// GateOperation::WallOper.setWallsToMove(cyp_i, 0, B00000110); // move walls 2 aind 3 down
+/// GateOperation::WallOper.setWallsToMove(cyp_i, 1, B00000110); // move walls 2 aind 3 up
 /// @endcode
-uint8_t WallOperation::setWallsToMove(uint8_t cyp_i, uint8_t byte_wall_state_new)
+uint8_t GateOperation::setWallsToMove(uint8_t cyp_i, uint8_t byte_wall_state_new)
 {
 
 	// Bail if chamber is flagged with I2C error
@@ -511,7 +511,7 @@ uint8_t WallOperation::setWallsToMove(uint8_t cyp_i, uint8_t byte_wall_state_new
 /// @see setWallsToMove()
 ///
 /// @return Status/error codes [0:no move, 1:success, 2:i2c error, 3:timeout] or [-1=255:input argument error].
-uint8_t WallOperation::moveWallsConductor()
+uint8_t GateOperation::moveWallsConductor()
 {
 	// Create and array of all cypress boards set to move
 	uint8_t cyp_arr[CypCom.nAddr];
@@ -635,7 +635,7 @@ uint8_t WallOperation::moveWallsConductor()
 /// @param cyp_i Index/number of the chamber to set [0-48]
 ///
 /// @return Status/error codes [1:move started, 2:i2c error] or [-1=255:input argument error].
-uint8_t WallOperation::_initWallsMove(uint8_t cyp_i)
+uint8_t GateOperation::_initWallsMove(uint8_t cyp_i)
 {
 	// Handle array inputs
 	if (cyp_i > CypCom.nAddr)
@@ -666,7 +666,7 @@ uint8_t WallOperation::_initWallsMove(uint8_t cyp_i)
 /// @param cyp_i Index/number of the chamber to set [0-48]
 ///
 /// @return Status/error codes [0:still_waiting 1:all_move_down, 2:i2c error, 3:temeout] or [-1=255:input argument error].
-uint8_t WallOperation::_monitorWallsMove(uint8_t cyp_i)
+uint8_t GateOperation::_monitorWallsMove(uint8_t cyp_i)
 {
 	// Handle array inputs
 	if (cyp_i > CypCom.nAddr)
@@ -758,7 +758,7 @@ uint8_t WallOperation::_monitorWallsMove(uint8_t cyp_i)
 /// @param byte_state_out Byte reference  to store state of up or down switches by wall (used as output).
 ///
 /// @return Wire::method output [0-4] or [-1=255: input argument error]
-uint8_t WallOperation::getWallState(uint8_t cyp_i, uint8_t pos_state_get, uint8_t &byte_state_out)
+uint8_t GateOperation::getWallState(uint8_t cyp_i, uint8_t pos_state_get, uint8_t &byte_state_out)
 {
 	if (cyp_i > CypCom.nAddr)
 		return -1;
@@ -798,9 +798,9 @@ uint8_t WallOperation::getWallState(uint8_t cyp_i, uint8_t pos_state_get, uint8_
 /// uint8_t cyp_i = 0; // Index of the chamber
 /// uint8_t s = 3; // Number of walls
 /// uint8_t p_wall_inc[s] = {0, 2, 5}; // Array with wall numbers to move
-/// WallOperation::testWallIO(cyp_i, a_wall, s); // This can be run more than once to setup multiple cypress boards
-/// WallOperation::testWallIO(0); // This will test all walls in chamber 0
-uint8_t WallOperation::testWallIO(uint8_t cyp_i, uint8_t p_wall_inc[], uint8_t s)
+/// GateOperation::testWallIO(cyp_i, a_wall, s); // This can be run more than once to setup multiple cypress boards
+/// GateOperation::testWallIO(0); // This will test all walls in chamber 0
+uint8_t GateOperation::testWallIO(uint8_t cyp_i, uint8_t p_wall_inc[], uint8_t s)
 {
 	if (cyp_i > CypCom.nAddr || s > 8)
 		return -1;
@@ -860,9 +860,9 @@ uint8_t WallOperation::testWallIO(uint8_t cyp_i, uint8_t p_wall_inc[], uint8_t s
 ///
 /// @return Wire::method output [0-4] or [-1=255: input argument error].
 ///
-/// @see WallOperation::testWallIO()
-/// @example Refer to the example provided in @ref WallOperation::testWallIO().
-uint8_t WallOperation::testWallPWM(uint8_t cyp_i, uint8_t p_wall_inc[], uint8_t s, uint16_t dt_run)
+/// @see GateOperation::testWallIO()
+/// @example Refer to the example provided in @ref GateOperation::testWallIO().
+uint8_t GateOperation::testWallPWM(uint8_t cyp_i, uint8_t p_wall_inc[], uint8_t s, uint16_t dt_run)
 {
 	if (cyp_i > CypCom.nAddr || s > 8)
 		return -1;
@@ -913,9 +913,9 @@ uint8_t WallOperation::testWallPWM(uint8_t cyp_i, uint8_t p_wall_inc[], uint8_t 
 ///
 /// @return Wire::method output [0-4] or [-1=255: input argument error].
 ///
-/// @see WallOperation::testWallIO()
-/// @example Refer to the example provided in @ref WallOperation::testWallIO().
-uint8_t WallOperation::testWallOperation(uint8_t cyp_i, uint8_t p_wall_inc[], uint8_t s)
+/// @see GateOperation::testWallIO()
+/// @example Refer to the example provided in @ref GateOperation::testWallIO().
+uint8_t GateOperation::testWallOperation(uint8_t cyp_i, uint8_t p_wall_inc[], uint8_t s)
 {
 	if (cyp_i > CypCom.nAddr || s > 8)
 		return -1;
@@ -932,7 +932,7 @@ uint8_t WallOperation::testWallOperation(uint8_t cyp_i, uint8_t p_wall_inc[], ui
 	}
 
 	// Test all walls
-	_Dbg.printMsg(_Dbg.MT::HEAD1, "RUNNING: Test move opperation: chamber[%d] walls%s", cyp_i, _Dbg.arrayStr(p_wi, s));
+	_Dbg.printMsg(_Dbg.MT::HEAD1, "RUNNING: Test move operation: chamber[%d] walls%s", cyp_i, _Dbg.arrayStr(p_wi, s));
 	uint8_t r_bit_out = 1;
 	uint16_t dt = 2000;
 	uint16_t ts;
@@ -1008,7 +1008,7 @@ uint8_t WallOperation::testWallOperation(uint8_t cyp_i, uint8_t p_wall_inc[], ui
 ///
 /// @param p_wall_inc: OPTIONAL: [0-7] max 8 entries. DEFAULT: all walls
 /// @param s: OPTIONAL: length of @param p_wall_inc array. DEFAULT: 8
-void WallOperation::_printPMS(PinMapStruct pms)
+void GateOperation::_printPMS(PinMapStruct pms)
 {
 	_Dbg.printMsg(_Dbg.MT::DEBUG, "IO/PWM nPorts[%d]_____________________", pms.nPortsInc);
 	for (size_t prt_i = 0; prt_i < pms.nPortsInc; prt_i++)

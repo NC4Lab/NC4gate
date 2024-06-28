@@ -3112,9 +3112,9 @@ QPushButton:pressed {
    <property name="geometry">
     <rect>
      <x>130</x>
-     <y>760</y>
+     <y>740</y>
      <width>431</width>
-     <height>31</height>
+     <height>61</height>
     </rect>
    </property>
    <property name="font">

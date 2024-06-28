@@ -14,7 +14,7 @@
 //===========CLASS: GateDebug============
 
 /// @brief Constructor
-GateDebug::GateDebug() {}
+GateDebug::GateDebug(){}
 
 /// @brief Print a message with elapsed time.
 ///
@@ -23,6 +23,9 @@ GateDebug::GateDebug() {}
 /// @param ... Variable arguments related to the formatting string.
 void GateDebug::printMsg(MT msg_type_enum, const char *p_fmt, ...)
 {
+	if (DB_VERBOSE == 0)
+		return;
+
 	const uint8_t buff_s = 125;
 	static char buff[buff_s];
 	buff[0] = '\0';
@@ -43,7 +46,7 @@ void GateDebug::printMsg(MT msg_type_enum, const char *p_fmt, ...)
 	// Get number of attention grabbing characters to print before and after message
 	size_t n =
 		(buff_s - 30) / 2 - strlen(buff) / 2 - 1; // account for current message (strlen(buff)) and type and time string (~30) and buffer size
-	n = n < buff_sym_s && n > 0 ? n : 3;	  // ensure n is not negative and doesn't exceed buff_sym size
+	n = n < buff_sym_s && n > 0 ? n : 3;		  // ensure n is not negative and doesn't exceed buff_sym size
 
 	// Fill buffer with attention grabbing characters
 	if (is_head1_msg)
@@ -237,20 +240,4 @@ const char *GateDebug::bitIndStr(uint8_t byte_mask_in)
 	uint8_t ii = i;
 	i = i == 1 ? 0 : i + 1;
 	return buff1[ii];
-}
-
-/// @brief do print test
-void GateDebug::printTest()
-{
-	/// @note: Keep commmented out unless using because const strings take up memory
-
-	// printMsg(MT::ERROR, "ERROR");
-	// printMsg(MT::HEAD2, "HEAD2");
-	// printMsg(MT::DEBUG, "DEBUG");
-	// printMsg(MT::HEAD1, "HEAD1");
-	// printMsg(MT::INFO, "INFO .........................");																											 // 30 char
-	// printMsg(MT::HEAD1A, "           HEAD1A           ");																											 // 30 char
-	// printMsg(MT::INFO, "INFO ...................................................................................................................................."); // 130 char
-	// printMsg(MT::HEAD1B, "                                                                 HEAD1B                                                                "); // 130 char
-	// printMsg(MT::HEAD2, "HEAD2");
 }
