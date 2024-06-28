@@ -92,24 +92,56 @@ void loop()
       SerCom.sendMessage(SerCom.MD.msg_type, WallOper.CypCom.listAddr, WallOper.CypCom.nAddr);
     }
 
-    // Handle gatews initialization message
+    // Handle gates initialization message
     if (SerCom.MD.msg_type == 1)
     {
       // Initialize walls in up position
       WallOper.initWalls(1);
 
-      // Store active walls as a byte array
+      // Store up walls as a byte array
       uint8_t msg_arg_arr[WallOper.CypCom.nAddr];
       for (size_t cyp_i = 0; cyp_i < WallOper.CypCom.nAddr; cyp_i++)
       {
         msg_arg_arr[cyp_i] = WallOper.C[cyp_i].bitWallPosition;
       }
 
-      // Send back found addresses
+      // TEMP
+      msg_arg_arr[0] = B00010101;
+      msg_arg_arr[1] = B11010000;
+
+      // Send back wall states
       SerCom.sendMessage(SerCom.MD.msg_type, msg_arg_arr, WallOper.CypCom.nAddr);
 
       // Initialize walls back to down position
       WallOper.initWalls(0);
+    }
+
+    // Handle move gates message
+    if (SerCom.MD.msg_type == 2)
+    {
+
+      // Loop through message
+      for (byte cyp_i = 0; cyp_i < SerCom.MD.length; ++cyp_i)
+      {
+        // Get wall byte mask data
+        uint8_t byte_wall_state_new = SerCom.MD.data[cyp_i];
+
+        // Set walls to move up for this chamber
+        WallOper.setWallsToMove(cyp_i, 1, byte_wall_state_new);
+      }
+
+            // Run move walls operation
+      WallOper.moveWallsConductor();
+
+      // Store up walls as a byte array
+      uint8_t msg_arg_arr[WallOper.CypCom.nAddr];
+      for (size_t cyp_i = 0; cyp_i < WallOper.CypCom.nAddr; cyp_i++)
+      {
+        msg_arg_arr[cyp_i] = WallOper.C[cyp_i].bitWallPosition;
+      }
+
+      // Send back wall states
+      SerCom.sendMessage(SerCom.MD.msg_type, msg_arg_arr, WallOper.CypCom.nAddr);
     }
   }
 

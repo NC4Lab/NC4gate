@@ -875,7 +875,7 @@ void WallOperation::procEcatMessage()
 		}
 
 		// Run move walls operation
-		run_status = moveWallsConductor();
+		moveWallsConductor();
 	}
 }
 

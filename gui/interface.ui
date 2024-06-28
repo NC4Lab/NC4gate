@@ -3043,12 +3043,12 @@ QPushButton:pressed {
     </property>
    </widget>
   </widget>
-  <widget class="QPushButton" name="send_cmd_button">
+  <widget class="QPushButton" name="send_gate_config_button">
    <property name="geometry">
     <rect>
      <x>20</x>
      <y>760</y>
-     <width>131</width>
+     <width>91</width>
      <height>30</height>
     </rect>
    </property>
@@ -3058,7 +3058,7 @@ QPushButton:pressed {
     </font>
    </property>
    <property name="text">
-    <string>Send Command</string>
+    <string>Send Gates</string>
    </property>
   </widget>
   <widget class="QPushButton" name="init_system_button">
@@ -3111,15 +3111,15 @@ QPushButton:pressed {
   <widget class="QLabel" name="error_label">
    <property name="geometry">
     <rect>
-     <x>160</x>
+     <x>130</x>
      <y>760</y>
-     <width>401</width>
+     <width>431</width>
      <height>31</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <pointsize>10</pointsize>
+     <pointsize>8</pointsize>
     </font>
    </property>
    <property name="styleSheet">

@@ -26,7 +26,7 @@ class GateControlApp(QMainWindow):
 
         # List all available COM ports
         com_ports = serial.tools.list_ports.comports()
-        print(list(com_ports))  # Print available COM ports for debugging
+        # print(list(com_ports))  # Print available COM ports for debugging
 
         # Populate the COM port combo box with available ports
         self.ui_widget.com_port_combo_box.addItem("Select COM Port")
@@ -71,29 +71,28 @@ class GateControlApp(QMainWindow):
         self.timeout_timer.setSingleShot(True)
         self.timeout_timer.timeout.connect(self.handle_timeout)
 
-        # Initialize a list for message data
-        # Message types:
-        #   0: Initialize cypress
-        #   1: Initialize gates
-        #   2: Move gates
+        # Initialize a dictionary for message data
+        # Fields:
+        #   'msg_type': Integer indicating the type of message.
+        #       0: Initialize cypress
+        #       1: Initialize gates
+        #       2: Move gates
+        #   'data': List of integers representing the data associated with the message.
+        #       Initialized with a list of 100 zeros.
+        #   'length': Integer indicating the length of the data.
+        #       Initialized to 0.
         self.message_data = {
             'msg_type': 0,            # Initialize with default values
             'data': [0] * 100,        # Initialize with a list of 100 zeros
             'length': 0
         }
 
-        # Initialize an empty list
+        # Initialize a list for storing cypress configuration data
+        # This list will contain dictionaries, each representing an entry with:
+        #   'i2c_addr': Hex of the I2C address associated with the entry.
+        #   'enabled_gates': List of integers for the enabled gates for the entry.
+        #   'active_gates': List of integers for the active (up) gates for the entry.
         self.cypress_list = []
-        
-        # # Test byte to array conversion
-        # byte_value = 0b10001110
-        # bit_array = self.byte_2_ind_array(byte_value)
-        # print(f"Byte: {byte_value:08b} -> Bit Array: {bit_array}")
-
-        # # Test array to byte conversion
-        # bit_array = [1, 2, 3, 7]
-        # byte_value = self.ind_array_2_byte(bit_array)
-        # print(f"Bit Array: {bit_array} -> Byte: {byte_value:08b}")
 
     # Method to initialize the UI
     def init_ui(self):
@@ -170,7 +169,6 @@ class GateControlApp(QMainWindow):
     def callback_init_system_button(self):
         # Get selected com port
         com_port = self.ui_widget.com_port_combo_box.currentText()
-        print(f"Initializing System Through COM Port: {com_port}")
 
         # Open a serial connection to the Arduino on the selected COM port
         self.arduino = serial.Serial(com_port, 115200, timeout=1)
@@ -178,18 +176,41 @@ class GateControlApp(QMainWindow):
         # Send the command to Arduino
         self.send_message(0, 0)
 
+        print(f"Initializing System Through COM Port: {com_port}")
+
     # Method to handle gates initialization button press
     def callback_init_gates_button(self):
         # Send init gates message
         self.send_message(1, 0)
 
+        print(f"Initializing Gates...")
+
+    # Method to handle send gate configuration button press
     def callback_send_gate_config_button(self):
+        active_gates_byte_array = [0] * len(self.cypress_list)
+
         # Loop through the cypress list
         for i in range(len(self.cypress_list)):
             # Get the gates array
-            gate_array = self.cypress_list[i]['gates']
-            # Convert the array to a single byte
-            byte_value = self.ind_array_2_byte(gate_array)
+            gate_array = self.cypress_list[i]['enabled_gates']
+            active_gates_array = []
+
+            # Loop through the gates and check if the respective button is active
+            for gate in gate_array:
+                if self.widget_groups[i]['buttons'][gate].isChecked():  # Check if the button is pressed
+                    active_gates_array.append(gate)
+
+            # Update the gates array with active gates
+            self.cypress_list[i]['active_gates'] = active_gates_array
+
+            # Convert array index to a byte and store it in the byte array
+            active_gates_byte_array[i] = self.ind_array_2_byte(active_gates_array)
+
+            # Print the active gates for debugging
+            print(f"Active gates for cypress list {i}: {active_gates_array} {active_gates_byte_array[i]}")
+
+        # Send the gate configuration message
+        self.send_message(2, active_gates_byte_array)
 
     # Method to send a message to the Arduino via serial
     def send_message(self, msg_type, data):
@@ -312,7 +333,8 @@ class GateControlApp(QMainWindow):
                 entry = {
                     # Set i2c_addr to the value from data
                     'i2c_addr': self.message_data['data'][i],
-                    'gates': []  # Initialize data 
+                    'enabled_gates': [],  # Initialize entry 
+                    'active_gates': []  # Initialize entry
                 }
                 self.cypress_list.append(entry)
 
@@ -335,23 +357,44 @@ class GateControlApp(QMainWindow):
 
             # Loop through the received data
             for i in range(self.message_data['length']):
-                # Store the active I2C addresses
-                gate_array = self.byte_2_ind_array(self.message_data['data'][i])
-                self.cypress_list[i]['gates'] = gate_array
+                # Store the enabled gates for each I2C addresses
+                gate_state = self.byte_2_ind_array(self.message_data['data'][i])
+                self.cypress_list[i]['enabled_gates'] = gate_state
 
                 # Enable the buttons
-                for gate in self.cypress_list[i]['gates']:
-                    print(f"gate: {gate_array}")
+                for gate in self.cypress_list[i]['enabled_gates']:
                     self.widget_groups[i]['buttons'][gate].setEnabled(True)
 
             # Disable the init gates button
             self.ui_widget.init_gates_button.setEnabled(False)
 
-    # Method to process the received message
+        # Process move gates message
+        elif self.message_data['msg_type'] == 2:
+
+            # Loop through the received data
+            for i in range(self.message_data['length']):
+                # Get the returned gate states
+                gate_state = set(self.byte_2_ind_array(self.message_data['data'][i]))
+
+                # Get a list of gates that should be active
+                active_gates = set(self.cypress_list[i]['active_gates'])
+
+                # Find mismatched gates
+                mismatched_gates = list((active_gates - gate_state) | (gate_state - active_gates))
+
+                # Flag and print mismatched gates
+                for gate in mismatched_gates:
+                    # Print the error message
+                    print(f"ERROR: Gate {gate} for Cypress {i} was not moved.") # Print the error message
+                    self.ui_widget.error_label.setText("ERROR: Gate move failed") # Display the error message
+                    # Make the button red
+                    self.widget_groups[i]['buttons'][gate].setStyleSheet("background-color: red;")
+
+    # Method to convert a byte to an array of indices corresponding to bits set to 1
     def byte_2_ind_array(self, byte):
         return [i for i in range(8) if byte & (1 << i)]
     
-    # Method to convert an array to a single byte
+    # Method to convert an array to a single byte with bits set to 1 for each index
     def ind_array_2_byte(self, array):
         byte = 0
         for wall_i in array:
