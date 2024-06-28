@@ -22,7 +22,17 @@ private:
     const byte START_BYTE = 0x02;       // Start byte for messages
     const byte END_BYTE = 0x03;         // End byte for messages
     const unsigned long TIMEOUT = 1000; // 1 second timeout for receiving messages
-    GateDebug _Dbg;                     // local instance of GateDebug class
+    GateDebug _Dbg; // Local instance of GateDebug class
+
+public:
+    // Struct for message data
+    struct MessageData
+    {
+        byte msg_type; // Message type
+        byte data[100];  // Message data
+        byte length;   // Message length
+    };
+    MessageData MD; // only one instance used
 
     // ---------------METHODS---------------
 
@@ -33,13 +43,13 @@ public:
     void begin(unsigned long baud);
 
 public:
-    bool receiveMessage(String &message);
+    bool receiveMessage();
 
 public:
-    void sendMessage(const String &message);
+    void sendMessage(byte msg_type, const byte *message_data, size_t length);
 
 private:
-    byte _calculateChecksum(const String &message);
+    byte _calculateChecksum(const byte *data_array, size_t length);
 
 private:
     byte _readByte();

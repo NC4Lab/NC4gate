@@ -26,10 +26,8 @@ void SerialCom::begin(unsigned long baud)
 /// reads the message length, the message itself, and the checksum. If the checksum is valid,
 /// it acknowledges the receipt and returns true. Otherwise, it returns false.
 ///
-/// @param message: Reference to a String where the received message will be stored.
-///
 /// @return true if a valid message is received and checksum is correct, otherwise false.
-bool SerialCom::receiveMessage(String &message)
+bool SerialCom::receiveMessage()
 {
     // Check if data is available on the serial port
     if (serial.available())
@@ -42,21 +40,25 @@ bool SerialCom::receiveMessage(String &message)
         {
             if (serial.available())
             {
-                byte length = _readByte(); // Read the length of the message
-                String received_message = "";
+                // Read and store the message type
+                MD.msg_type = _readByte();
+
+                // Read the length of the message
+                MD.length = _readByte();
 
                 // Read the message content
-                for (byte i = 0; i < length; ++i)
+                MD.data[MD.length] = {};
+                for (byte i = 0; i < MD.length; ++i)
                 {
                     if (serial.available())
                     {
-                        received_message += (char)_readByte();
+                        MD.data[i] = _readByte();
                     }
                 }
 
                 // Read and calculate the checksum
                 byte checksum_expected = _readByte();
-                byte checksum_calculated = _calculateChecksum(received_message);
+                byte checksum_calculated = _calculateChecksum(MD.data, MD.length);
 
                 // Check if the end byte is correct
                 byte end_byte = _readByte();
@@ -65,9 +67,9 @@ bool SerialCom::receiveMessage(String &message)
                     // Validate the checksum
                     if (checksum_expected == checksum_calculated)
                     {
-                        message = received_message; // Store the valid message
-                        sendMessage(message);       // Acknowledge receipt
-                        return true;                // Return true for a valid message
+                        _Dbg.printMsg(_Dbg.MT::INFO, "Received: start_byte[%s] msg_type[%d] length[%d] data%s checksum[%d|%d] end_byte[%s]",
+                                      _Dbg.hexStr(start_byte), MD.msg_type, MD.length, _Dbg.arrayStr(MD.data, MD.length), checksum_calculated, checksum_expected, _Dbg.hexStr(end_byte));
+                        return true; // Return true for a valid message
                     }
                     else
                     {
@@ -81,8 +83,9 @@ bool SerialCom::receiveMessage(String &message)
                     _Dbg.printMsg(_Dbg.MT::WARNING, "Missing end byte");
                 }
 
-                _Dbg.printMsg(_Dbg.MT::WARNING, "Failed receive: start_byte[%s] length[%d] received_message[%s] checksum[%d|%d] end_byte[%s]",
-                              _Dbg.hexStr(start_byte), length, received_message.c_str(), checksum_calculated, checksum_expected, _Dbg.hexStr(end_byte));
+                // Print failed receive message
+                _Dbg.printMsg(_Dbg.MT::WARNING, "Failed receive: start_byte[%s] msg_type[%d] length[%d] data%s checksum[%d|%d] end_byte[%s]",
+                              _Dbg.hexStr(start_byte), MD.msg_type, MD.length, _Dbg.arrayStr(MD.data, MD.length), checksum_calculated, checksum_expected, _Dbg.hexStr(end_byte));
             }
         }
         else
@@ -104,34 +107,44 @@ bool SerialCom::receiveMessage(String &message)
 
 /// @brief Sends a message over the serial port.
 ///
-/// This function constructs a message with a start byte, message length, message content,
-/// and checksum, then sends it over the serial port.
+/// This function constructs a message with a start byte, message type, message length,
+/// message content, and checksum, then sends it over the serial port.
 ///
-/// @param message: The message to be sent.
-void SerialCom::sendMessage(const String &message)
+/// @param msg_type: The type of the message to be sent.
+/// @param message_data: Pointer to the byte array containing the message to be sent.
+/// @param length: The length of the byte array.
+void SerialCom::sendMessage(byte msg_type, const byte *message_data, size_t length)
 {
-    serial.write(START_BYTE);                  // Write the start byte
-    serial.write(message.length());            // Write the length of the message
-    serial.print(message);                     // Write the message content
-    serial.write(_calculateChecksum(message)); // Write the checksum
-    serial.write(END_BYTE);                    // Write the start byte
+    serial.write(START_BYTE);                                 // Write the start byte
+    serial.write(msg_type);                                   // Write the message type
+    serial.write(static_cast<byte>(length));                  // Write the length of the message
+    serial.write(message_data, length);                       // Write the message content
+    byte checksum = _calculateChecksum(message_data, length); // Compute the checksum
+    checksum = (checksum + msg_type) % 256;                   // Include msg_type in checksum calculation
+    serial.write(checksum);                                   // Write the checksum
+    serial.write(END_BYTE);                                   // Write the end byte
+
+    // Print sent message
+    _Dbg.printMsg(_Dbg.MT::INFO, "Sent: msg_type[%d] length[%d] data%s checksum[%d]",
+                  msg_type, length, _Dbg.arrayStr(message_data, length), checksum);
 }
 
 /// @brief Calculates the checksum for a given message.
 ///
-/// The checksum is calculated as the XOR of all characters in the message.
+/// The checksum is calculated as the sum of all bytes in the message, modulo 256.
 ///
-/// @param message: The message for which to calculate the checksum.
+/// @param data_array: Pointer to the byte array for which to calculate the checksum.
+/// @param length: The length of the byte array.
 ///
 /// @return The calculated checksum.
-byte SerialCom::_calculateChecksum(const String &message)
+byte SerialCom::_calculateChecksum(const byte *data_array, size_t length)
 {
     byte checksum = 0;
 
-    // Calculate the checksum by summing all characters in the message
-    for (char c : message)
+    // Calculate the checksum by summing all bytes in the message
+    for (size_t i = 0; i < length; ++i)
     {
-        checksum += c;
+        checksum += data_array[i];
     }
     return checksum % 256; // Return the calculated checksum modulo 256
 }

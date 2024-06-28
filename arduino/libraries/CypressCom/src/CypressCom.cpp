@@ -19,6 +19,81 @@ CypressCom::CypressCom() {}
 
 //------------------------ LOW-LEVEL METHODS ------------------------
 
+/// @brief Scans for I2C addresses and prints to Serial Output Window along with expected address.
+///
+/// @note This library was designed to support the Cypress CY8C9540A and should work for the CY8C9520A
+///	but will not support the additional registries of the CY8C9560A.
+///
+/// @return Last address found
+uint8_t CypressCom::i2cScan()
+{
+	uint8_t address;
+	uint8_t resp;
+	uint8_t cnt_addr = 0;
+	uint8_t cnt_err = 0;
+	uint8_t list_addr[128] = {0};
+	uint8_t list_addr_with_err[128] = {0};
+	uint8_t list__err_code[128] = {0};
+
+	// Loop and test all 128 possible addresses
+	for (address = 1; address < 127; address++)
+	{
+		// Track dt for errors
+		_Dbg.dtTrack(1);
+
+		// Test address
+		_beginTransmissionWrapper(address);
+		resp = _endTransmissionWrapper(true, false);
+
+		// Handle response
+		if (resp == 0)
+		{ // check for repsonse
+			list_addr[cnt_addr] = address;
+			cnt_addr++;
+		}
+		else if (resp > 4)
+		{ // catch unknown error
+			list_addr_with_err[cnt_addr] = address;
+			cnt_err++;
+
+			// Print unknown error code immediately
+			_Dbg.printMsg(_Dbg.MT::WARNING, "I2C Error[%d] Address[%s] DT[%s]", resp, _Dbg.hexStr(address), _Dbg.dtTrack());
+		}
+	}
+
+	// Store and print results
+	if (cnt_addr > 0)
+	{
+		_Dbg.printMsg(_Dbg.MT::INFO, "I2C Devices Found:");
+		for (size_t i = 0; i < cnt_addr; i++)
+		{ // print devices
+			_Dbg.printMsg(_Dbg.MT::INFO, "\t%d) %s", i, _Dbg.hexStr(list_addr[i]));
+		}
+
+		// Store first 9 addresses
+		for (size_t i = 0; i < 9; i++)
+		{
+			listAddr[i] = list_addr[i];
+		}
+		nAddr = cnt_addr;
+	}
+	else
+	{
+		_Dbg.printMsg(_Dbg.WARNING, "No I2C Devices Found");
+	}
+	if (cnt_err > 0)
+	{
+		_Dbg.printMsg(_Dbg.MT::ERROR, "I2C Errors Found");
+		for (size_t i = 0; i < cnt_addr; i++)
+		{ // print errors
+			_Dbg.printMsg(_Dbg.MT::INFO, "\t%d) %s", i, _Dbg.hexStr(list_addr_with_err[i]));
+		}
+	}
+
+	// Return last address
+	return list_addr[cnt_addr];
+}
+
 /// @brief Initialize wire coms and setup I2C.
 ///
 /// @return Output from @ref Wire::endTransmission() [0-4] or [-1=255:input argument error].
@@ -30,9 +105,6 @@ uint8_t CypressCom::i2cInit()
 	// Set I2C timeout to 5 seconds
 	Wire.setWireTimeout(5000000); // (us) for Wire librarary (default: 25000)
 	Wire.setTimeout(5000);		   // (ms) for Stream librarary
-
-	// Scan I2C bus for Cypress chips and print found addresses
-	i2cScan();
 }
 
 /// @brief Lowest level function to read from a given Cypress register.
@@ -408,7 +480,7 @@ uint8_t CypressCom::setPortRegister(uint8_t address, uint8_t reg, uint8_t port, 
 /// @param address I2C address for a given Cypress chip.
 void CypressCom::_beginTransmissionWrapper(uint8_t address)
 {
-	ADDR = address;
+	nowAddr = address;
 	Wire.beginTransmission(address);
 }
 
@@ -422,79 +494,11 @@ uint8_t CypressCom::_endTransmissionWrapper(bool send_stop, bool do_print_err)
 {
 	uint8_t resp = Wire.endTransmission(send_stop);
 	if (resp != 0 && do_print_err)
-		_Dbg.printMsg(_Dbg.MT::ERROR, "I2C Error[%d] Address[%s] from Wire::endTransmission()", resp, _Dbg.hexStr(ADDR));
+		_Dbg.printMsg(_Dbg.MT::ERROR, "I2C Error[%d] Address[%s] from Wire::endTransmission()", resp, _Dbg.hexStr(nowAddr));
 	return resp;
 }
 
 //------------------------ TESTING AND DEBUGGING METHODS ------------------------
-
-/// @brief Scans for I2C addresses and prints to Serial Output Window along with expected address.
-///
-/// @note This library was designed to support the Cypress CY8C9540A and should work for the CY8C9520A
-///	but will not support the additional registries of the CY8C9560A.
-///
-/// @return Last address found
-uint8_t CypressCom::i2cScan()
-{
-	uint8_t address;
-	uint8_t resp;
-	uint8_t cnt_addr = 0;
-	uint8_t cnt_err = 0;
-	uint8_t list_addr[128] = {0};
-	uint8_t list_addr_with_err[128] = {0};
-	uint8_t list__err_code[128] = {0};
-
-	// Loop and test all 128 possible addresses
-	for (address = 1; address < 127; address++)
-	{
-		// Track dt for errors
-		_Dbg.dtTrack(1);
-
-		// Test address
-		_beginTransmissionWrapper(address);
-		resp = _endTransmissionWrapper(true, false);
-
-		// Handle response
-		if (resp == 0)
-		{ // check for repsonse
-			list_addr[cnt_addr] = address;
-			cnt_addr++;
-		}
-		else if (resp > 4)
-		{ // catch unknown error
-			list_addr_with_err[cnt_addr] = address;
-			cnt_err++;
-
-			// Print unknown error code immediately
-			_Dbg.printMsg(_Dbg.MT::WARNING, "I2C Error[%d] Address[%s] DT[%s]", resp, _Dbg.hexStr(address), _Dbg.dtTrack());
-		}
-	}
-
-	// Print results
-	if (cnt_addr > 0)
-	{
-		_Dbg.printMsg(_Dbg.MT::INFO, "I2C Devices Found:");
-		for (size_t i = 0; i < cnt_addr; i++)
-		{ // print devices
-			_Dbg.printMsg(_Dbg.MT::INFO, "\t%d) %s", i, _Dbg.hexStr(list_addr[i]));
-		}
-	}
-	else
-	{
-		_Dbg.printMsg(_Dbg.WARNING, "No I2C Devices Found");
-	}
-	if (cnt_err > 0)
-	{
-		_Dbg.printMsg(_Dbg.MT::ERROR, "I2C Errors Found");
-		for (size_t i = 0; i < cnt_addr; i++)
-		{ // print errors
-			_Dbg.printMsg(_Dbg.MT::INFO, "\t%d) %s", i, _Dbg.hexStr(list_addr_with_err[i]));
-		}
-	}
-
-	// Return last address
-	return list_addr[cnt_addr];
-}
 
 /// @brief Print a single registry byte in binary format.
 ///

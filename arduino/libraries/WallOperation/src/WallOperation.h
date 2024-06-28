@@ -23,27 +23,11 @@ class WallOperation
 
 	// --------------VARIABLES--------------
 public:
-	static const uint8_t nChamInitMax = 9; // Number of chambers in actual maze
+	static const uint8_t maxCyp = 9; // Maximum number of cypress boards
 
 	// Paramiters set by GUI
-	uint8_t nCham;			// number of chambers to initialize in maze
-	uint8_t nChamPerBlock;	// max number of chambers to move at once
-	uint8_t nMoveAttempt;	// max number of attempts to move a walls
-	uint8_t pwmDuty;		// pwm duty cycle
+	uint8_t pwmDuty;		   // pwm duty cycle
 	uint16_t dtMoveTimeout; // timeout for wall movement (ms)
-
-	// Bitwise variable, specifying the walls that actually exist for each chamber [1:exists]
-	uint8_t bitWallExistMap[9] = {
-		B11111111, // 0 [0, 1, 2, 3, 4, 5, 6, 7]
-		B10101110, // 1 [1, 2, 3, 5, 7]
-		B11111111, // 2 [0, 1, 2, 3, 4, 5, 6, 7]
-		B10101011, // 3 [0, 1, 3, 5, 7]
-		B11111111, // 4 [0, 1, 2, 3, 4, 5, 6, 7]
-		B10111010, // 5 [1, 3, 4, 5, 7]
-		B11111111, // 6 [0, 1, 2, 3, 4, 5, 6, 7]
-		B11101010, // 7 [1, 3, 5, 6, 7]
-		B11111111  // 8 [0, 1, 2, 3, 4, 5, 6, 7]
-	};
 
 	// Pin mapping organized by wall with entries corresponding to the associated port or pin
 	struct WallMapStruct
@@ -90,11 +74,10 @@ public:
 
 	// Struct for tracking each chamber
 	/// @todo: Consider going back to a single move flag for each chamber
-	struct ChamberStruct
+	struct CypressStruct
 	{
 		uint8_t addr = 0;				 // chamber I2C address
 		uint8_t i2cStatus = 0;			 // track I2C status errors for chamber
-		uint8_t bitWallExist = 0;		 // bitwise variable, flag current walls that should be moved [0:inactive, 1:active]
 		uint8_t bitWallPosition = 0;	 // bitwise variable, current wall position [0:down, 1:up]
 		uint8_t bitWallMoveUpFlag = 0;	 // bitwise variable, flag current walls that should be raised [0:inactive, 1:active]
 		uint8_t bitWallMoveDownFlag = 0; // bitwise variable, flag current walls that should be lowered [0:inactive, 1:active]
@@ -102,18 +85,19 @@ public:
 		PinMapStruct pmsActvPWM;		 // reusable dynamic instance for active PWM
 		PinMapStruct pmsActvIO;			 // reusable dynamic instance for active IO
 	};
-	ChamberStruct C[nChamInitMax]; // initialize with max number of chambers for 3x3
+	CypressStruct C[maxCyp]; // initialize with max number of chambers for 3x3
 
 	EsmacatCom EsmaCom; // instance of EsmacatCom class using SPI chip select pin 10
 
+	CypressCom CypCom; // local instance of CypressCom class
+
 private:
 	GateDebug _Dbg;		// local instance of GateDebug class
-	CypressCom _CypCom; // local instance of CypressCom class
 
 	// ---------------METHODS---------------
 
 public:
-	WallOperation(uint8_t, uint8_t, uint8_t, uint8_t, uint16_t);
+	WallOperation(uint8_t, uint16_t);
 
 private:
 	void _makePMS(PinMapStruct &, uint8_t[], uint8_t[]);
@@ -135,7 +119,7 @@ private:
 	void _updateDynamicPMS(PinMapStruct, PinMapStruct &, uint8_t);
 
 public:
-	void initSoftware(uint8_t, uint8_t[] = nullptr);
+	void initWallOper();
 
 public:
 	uint8_t initCypress();
@@ -158,13 +142,7 @@ private:
 	uint8_t _setWallsToMove(uint8_t, uint8_t, uint8_t);
 
 public:
-	uint8_t moveWallsByChamberBlocks();
-
-private:
-	uint8_t _moveWallsByChamberBlocksWithRetry(uint8_t[], uint8_t, uint8_t, uint8_t &);
-
-private:
-	uint8_t _moveWallsConductor(uint8_t[], uint8_t);
+	uint8_t moveWallsConductor();
 
 private:
 	uint8_t _initWallsMove(uint8_t);

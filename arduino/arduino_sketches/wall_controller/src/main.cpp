@@ -25,18 +25,14 @@
 bool DB_VERBOSE = 1;  //< set to control debugging behavior [0:silent, 1:verbose]
 bool DO_ECAT_SPI = 1; //< set to control block SPI [0:dont start, 1:start]
 
-// Wall opperation setup (these will be overwritten by the Ethercat message)
-uint8_t nCham = 1;             // number of chambers being used [1-9]
-uint8_t nChamPerBlock = 1;     // max number of chambers to move at once [1-nCham]
-uint8_t nMoveAttempt = 1;      // number of attempts to move a walls [1-255]
+// Wall opperation setup
 uint8_t pwmDuty = 255;         // PWM duty for all walls [0-255]
 uint16_t dtMoveTimeout = 1000; // timeout for wall movement (ms)
 
 // // Initialize class instances for local libraries
 GateDebug Dbg;
-CypressCom CypCom;
 SerialCom SerCom(Serial1);
-WallOperation WallOper(nCham, nChamPerBlock, nMoveAttempt, pwmDuty, dtMoveTimeout);
+WallOperation WallOper(pwmDuty, dtMoveTimeout);
 
 //=============== SETUP =================
 void setup()
@@ -53,8 +49,11 @@ void setup()
   Dbg.printMsg(Dbg.MT::HEAD1, "RUNNING SETUP");
 
   // Initialize I2C for Cypress chips
-  CypCom.i2cInit();
-  while(true);
+  WallOper.CypCom.i2cInit();
+
+  // // Scan I2C bus for Cypress chips and store and print found addresses
+  // WallOper.CypCom.i2cScan();
+  // while(true);
 
 // Print which microcontroller is active
 #ifdef ARDUINO_AVR_UNO
@@ -71,31 +70,48 @@ void setup()
 //=============== LOOP ==================
 void loop()
 {
-  String receivedMessage;
-
   // Check if a message is received
-  if (SerCom.receiveMessage(receivedMessage))
+  if (SerCom.receiveMessage())
   {
     // Print the received message to the Serial Monitor
-    Serial.print("Received: ");
-    Serial.println(receivedMessage);
+    Dbg.printMsg(Dbg.MT::INFO, "Received message: type[%d]", SerCom.MD.msg_type);
 
-    // Process the received message (for example, toggle an LED)
-    if (receivedMessage == "Q")
+    // Handle Cypress initialization message
+    if (SerCom.MD.msg_type == 0)
     {
-      Dbg.printMsg(Dbg.MT::INFO, "Query Acknowledged"); 
+      // Scan I2C bus for Cypress chips and store and print found addresses
+      WallOper.CypCom.i2cScan();
+
+      // Initialize wall opperation
+      WallOper.initWallOper();
+
+      // Initialize cypress chips
+      WallOper.initCypress();
+
+      // Send back found addresses
+      SerCom.sendMessage(SerCom.MD.msg_type, WallOper.CypCom.listAddr, WallOper.CypCom.nAddr);
     }
-    else
+
+    // Handle gatews initialization message
+    if (SerCom.MD.msg_type == 1)
     {
-      Dbg.printMsg(Dbg.MT::INFO, "Unknown Command");
+      // Initialize walls in up position
+      WallOper.initWalls(1);
+
+      // Store active walls as a byte array
+      uint8_t msg_arg_arr[WallOper.CypCom.nAddr];
+      for (size_t cyp_i = 0; cyp_i < WallOper.CypCom.nAddr; cyp_i++)
+      {
+        msg_arg_arr[cyp_i] = WallOper.C[cyp_i].bitWallPosition;
+      }
+
+      // Send back found addresses
+      SerCom.sendMessage(SerCom.MD.msg_type, msg_arg_arr, WallOper.CypCom.nAddr);
+
+      // Initialize walls back to down position
+      WallOper.initWalls(0);
     }
   }
-
-  
-  // while (Serial1.available())
-  // {
-  //   Serial.write(Serial1.read());
-  // }
 
   //............... ROS Controlled ...............
 
