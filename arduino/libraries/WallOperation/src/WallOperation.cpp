@@ -345,8 +345,9 @@ uint8_t WallOperation::initWalls(uint8_t move_dir)
 	if (move_dir == 1)
 	{
 		// Set wall movef for all cypress boards
+		uint8_t byte_wall_state_new = 255; // set all walls to move up
 		for (size_t cyp_i = 0; cyp_i < CypCom.nAddr; cyp_i++)
-			setWallsToMove(cyp_i, 1);
+			setWallsToMove(cyp_i, byte_wall_state_new);
 
 		// Move walls up
 		uint8_t resp = moveWallsConductor();
@@ -358,8 +359,9 @@ uint8_t WallOperation::initWalls(uint8_t move_dir)
 	if (move_dir == 0)
 	{
 		// Set wall move for all cypress boards
+		uint8_t byte_wall_state_new = 0; // set all walls to move down
 		for (size_t cyp_i = 0; cyp_i < CypCom.nAddr; cyp_i++)
-			setWallsToMove(cyp_i, 0);
+			setWallsToMove(cyp_i, byte_wall_state_new);
 
 		// Move walls down
 		uint8_t resp = moveWallsConductor();
@@ -456,78 +458,19 @@ uint8_t WallOperation::_setupCypressPWM(uint8_t address)
 
 //------------------------ RUNTIME METHODS ------------------------
 
-/// @brief: Base method that set all walls for movement for a given chamber
+/// @brief: Method that set all walls for movement for a given chamber
 ///
 /// @param cyp_i Index of the chamber to set [0-CypCom.nAddr].
-/// @param pos_state_set Value specifying the new wall position state [0:down, 1:up].
+/// @param byte_wall_state_new Byte mask with bits specifying the new wall position state [0:down, 1:up]
 ///
 /// @return Status codes [0:no move, 1:success].@return
-///
-/// @details Here's an example of how to use this overload:
-/// @code
-/// WallOperation::WallOper.setWallsToMove(cyp_i, 0); // lower all walls in chamber 0 up
-/// WallOperation::WallOper.setWallsToMove(cyp_i, 0); // raise all walls in chamber 0 down
-/// @endcode
-uint8_t WallOperation::setWallsToMove(uint8_t cyp_i, uint8_t pos_state_set)
-{
-	// set all bits to 0 or 1
-	uint8_t byte_wall_state_new = pos_state_set == 0 ? 0 : 255;
-
-	// Run private version of the method
-	return _setWallsToMove(cyp_i, pos_state_set, byte_wall_state_new);
-}
-
-/// @overload: Option for including an array of wall numbers to move
-///
-/// @param p_wall_inc OPTIONAL: Pointer array specifying wall numbers for walls to move [0-7] max 8 entries. .
-/// @param s OPTIONAL: Length of "p_wall_inc".
-///
-/// @details Here's an example of how to use this overload
-/// @code
-/// uint8_t p_wall_inc[s] = {0, 2, 5}; // array with wall numbers to move
-/// WallOperation::setWallsToMove(cyp_i, 1, p_wall_inc, 3); // move walls in p_wall_inc up
-/// WallOperation::setWallsToMove(cyp_i, 0, p_wall_inc, 3); // move walls in p_wall_inc down
-/// @endcode
-uint8_t WallOperation::setWallsToMove(uint8_t cyp_i, uint8_t pos_state_set, uint8_t p_wall_inc[], uint8_t s)
-{
-	// Handle array inputs
-	if (s > 8)
-		return -1;
-	if (cyp_i > CypCom.nAddr)
-		return -1;
-
-	// Set bit in wall byte to bit_val
-	uint8_t byte_wall_state_new;
-	for (size_t i = 0; i < s; i++)
-		bitWrite(byte_wall_state_new, p_wall_inc[i], pos_state_set);
-
-	// Run private version of the method
-	return _setWallsToMove(cyp_i, pos_state_set, byte_wall_state_new);
-}
-
-/// @overload: Option for including byte mask for walls to move
-///
-/// @details This function and its versions updates the byte mask specifying which walls should be up.
-/// It can be run more than once to setup multiple cypress boards with different wall configurations.
-/// Run @ref WallOperation::moveWallsByChamberBlocks() after all settings complete.
-///
-/// @param byte_wall_state_new Byte mask with bits specifying the new wall position state [0:down, 1:up]
 ///
 /// @details Here's an example of how to use this overload:
 /// @code
 /// WallOperation::WallOper.setWallsToMove(cyp_i, 0, B00000110); // move walls 2 aind 3 down
 /// WallOperation::WallOper.setWallsToMove(cyp_i, 1, B00000110); // move walls 2 aind 3 up
 /// @endcode
-uint8_t WallOperation::setWallsToMove(uint8_t cyp_i, uint8_t pos_state_set, uint8_t byte_wall_state_new)
-{
-	// Run private version of the method
-	return _setWallsToMove(cyp_i, pos_state_set, byte_wall_state_new);
-}
-
-/// @brief: Private workhorse version of the method
-///
-/// @return Status codes @ref WallOperation::setWallsToMove().
-uint8_t WallOperation::_setWallsToMove(uint8_t cyp_i, uint8_t pos_state_set, uint8_t byte_wall_state_new)
+uint8_t WallOperation::setWallsToMove(uint8_t cyp_i, uint8_t byte_wall_state_new)
 {
 
 	// Bail if chamber is flagged with I2C error
@@ -838,45 +781,6 @@ uint8_t WallOperation::getWallState(uint8_t cyp_i, uint8_t pos_state_get, uint8_
 	}
 
 	return resp;
-}
-
-/// @brief Used to process new ROS ethercat msg argument data.
-void WallOperation::procEcatMessage()
-{
-	uint8_t msg_arg_arr[9]; // store message arguments
-	uint8_t arg_len = 0;	// store argument length
-	uint8_t i2c_status = 0; // track i2c status
-	uint8_t run_status = 0; // track run status
-
-	// Check for new message
-	if (!EsmaCom.rcvEM.isNew)
-		return;
-
-	// Copy and send back recieved message arguments as the default response
-	arg_len = EsmaCom.rcvEM.argLen;
-	for (size_t arg_i = 0; arg_i < arg_len; arg_i++)
-		msg_arg_arr[arg_i] = EsmaCom.rcvEM.ArgU.ui8[arg_i];
-
-	_Dbg.printMsg(_Dbg.MT::INFO, "(%d)ECAT PROCESSING: %s", EsmaCom.rcvEM.msgID, EsmaCom.rcvEM.msg_tp_str);
-
-	//............... Process and Execute Messages ...............
-
-	// MOVE_WALLS
-	if (EsmaCom.rcvEM.msgTp == EsmaCom.MessageType::MOVE_WALLS)
-	{
-		// Loop through arguments and update walls to move
-		for (size_t cyp_i = 0; cyp_i < EsmaCom.rcvEM.argLen; cyp_i++)
-		{
-			// Get wall byte mask data
-			uint8_t byte_wall_state_new = EsmaCom.rcvEM.ArgU.ui8[cyp_i];
-
-			// Set walls to move up for this chamber
-			setWallsToMove(cyp_i, 1, byte_wall_state_new);
-		}
-
-		// Run move walls operation
-		moveWallsConductor();
-	}
 }
 
 //------------------------ TESTING AND DEBUGGING METHODS ------------------------

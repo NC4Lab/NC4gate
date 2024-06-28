@@ -135,11 +135,6 @@ private:
 
 public:
 	uint8_t setWallsToMove(uint8_t, uint8_t);
-	uint8_t setWallsToMove(uint8_t, uint8_t, uint8_t[], uint8_t);
-	uint8_t setWallsToMove(uint8_t, uint8_t, uint8_t);
-
-private:
-	uint8_t _setWallsToMove(uint8_t, uint8_t, uint8_t);
 
 public:
 	uint8_t moveWallsConductor();
@@ -152,9 +147,6 @@ private:
 
 public:
 	uint8_t getWallState(uint8_t, uint8_t, uint8_t &);
-
-public:
-	void procEcatMessage();
 
 public:
 	uint8_t testWallIO(uint8_t, uint8_t[] = nullptr, uint8_t = 8);

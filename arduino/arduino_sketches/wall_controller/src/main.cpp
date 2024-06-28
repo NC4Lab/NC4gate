@@ -127,7 +127,7 @@ void loop()
         uint8_t byte_wall_state_new = SerCom.MD.data[cyp_i];
 
         // Set walls to move up for this chamber
-        WallOper.setWallsToMove(cyp_i, 1, byte_wall_state_new);
+        WallOper.setWallsToMove(cyp_i, byte_wall_state_new);
       }
 
             // Run move walls operation
