@@ -21,7 +21,7 @@ private:
     HardwareSerial &serial;             // Reference to the serial port
     const byte START_BYTE = 0x02;       // Start byte for messages
     const byte END_BYTE = 0x03;         // End byte for messages
-    const unsigned long TIMEOUT = 1000; // 1 second timeout for receiving messages
+    const unsigned long TIMEOUT = 1500; // Timeout for receiving messages (ms)
     GateDebug _Dbg; // Local instance of GateDebug class
 
 public:
@@ -29,7 +29,7 @@ public:
     struct MessageData
     {
         byte msg_type; // Message type
-        byte data[100];  // Message data
+        byte data[200];  // Message data
         byte length;   // Message length
     };
     MessageData MD; // only one instance used

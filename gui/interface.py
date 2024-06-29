@@ -63,7 +63,7 @@ class GateControlApp(QMainWindow):
         self.MESSAGE_CHECK_DT = 50  # ms
 
         # Resonse timeout parameters
-        self.RESPONSE_TIMEOUT = 5000  # Resonse timeout (ms)
+        self.RESPONSE_TIMEOUT = 30000  # Resonse timeout (ms)
 
         # Timeout timer
         self.timeout_timer = QTimer(self)
@@ -281,16 +281,16 @@ class GateControlApp(QMainWindow):
                     self.proc_receive_message()
 
                     # Uncomment to print the received message
-                    # print(f"Received response from Arduino:")
-                    # print(f"  Start Byte: {self.START_BYTE}")
-                    # print(f"  Message Type Byte: {
-                    #       self.message_data['msg_type']}")
-                    # print(f"  Length Byte: {self.message_data['length']}")
-                    # print(f"  Data Bytes: {[hex(byte)
-                    #       for byte in self.message_data['data']]}")
-                    # print(f"  Checksum Byte: {checksum_byte}")
-                    # print(f"  End Byte: {self.END_BYTE}")
-                    # print(f"  Full Message: {[byte for byte in message]}")
+                    print(f"Received response from Arduino:")
+                    print(f"  Start Byte: {self.START_BYTE}")
+                    print(f"  Message Type Byte: {
+                          self.message_data['msg_type']}")
+                    print(f"  Length Byte: {self.message_data['length']}")
+                    print(f"  Data Bytes: {[hex(byte)
+                          for byte in self.message_data['data']]}")
+                    print(f"  Checksum Byte: {checksum_byte}")
+                    print(f"  End Byte: {self.END_BYTE}")
+                    print(f"  Full Message: {[byte for byte in message]}")
                 else:
                     print(f"Invalid checksum. Expected: {checksum_byte}, Calculated: {checksum_calculated}")
             else:
