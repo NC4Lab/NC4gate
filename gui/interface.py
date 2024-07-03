@@ -292,14 +292,16 @@ class GateControlApp(QMainWindow):
                     print(f"  End Byte: {self.END_BYTE}")
                     print(f"  Full Message: {[byte for byte in message]}")
                 else:
-                    print(f"Invalid checksum. Expected: {checksum_byte}, Calculated: {checksum_calculated}")
+                    print(f"Invalid checksum. Expected: {
+                          checksum_byte}, Calculated: {checksum_calculated}")
             else:
                 print(f"Invalid response format: {message}")
 
     # Method to handle timeout
 
     def handle_timeout(self):
-        error_msg = f"ERROR: No response for command: {self.pending_message} within {self.RESPONSE_TIMEOUT} ms"
+        error_msg = f"ERROR: No response for command: {
+            self.pending_message} within {self.RESPONSE_TIMEOUT} ms"
         print(error_msg)  # Print the error message
         self.ui_widget.error_label.setText(
             error_msg)  # Display the error message
@@ -347,9 +349,12 @@ class GateControlApp(QMainWindow):
                     self.message_data['data'][i])
                 self.cypress_list[i]['enabled_gates'] = gate_state
 
-                # Enable the buttons
+                # Change button features
                 for gate in self.cypress_list[i]['enabled_gates']:
-                    self.widget_groups[i]['buttons'][gate].setEnabled(True)
+                    self.widget_groups[i]['buttons'][gate].setEnabled(
+                        True)  # Enable the buttons
+                    self.widget_groups[i]['buttons'][gate].setStyleSheet(
+                        "background-color: lightgreen;")  # Set the button color to light green
 
             # Disable the init gates button
             self.ui_widget.init_gates_button.setEnabled(False)
@@ -366,6 +371,11 @@ class GateControlApp(QMainWindow):
                 # Get a list of gates that should be active
                 active_gates = set(self.cypress_list[i]['active_gates'])
 
+                # Set all buttons to light green
+                for gate in active_gates:
+                    self.widget_groups[i]['buttons'][gate].setStyleSheet(
+                        "background-color: lightgreen;")
+
                 # Find mismatched gates
                 mismatched_gates = list(
                     (active_gates - gate_state) | (gate_state - active_gates))
@@ -380,6 +390,16 @@ class GateControlApp(QMainWindow):
                     # Make the button red
                     self.widget_groups[i]['buttons'][gate].setStyleSheet(
                         "background-color: red;")
+                    # Reset the button to it's previous state
+                    if self.widget_groups[i]['buttons'][gate].isChecked():
+                        self.widget_groups[i]['buttons'][gate].setChecked(
+                            False)
+                    else:
+                        self.widget_groups[i]['buttons'][gate].setChecked(True)
+
+                # Clear the error if no mismatched gates
+                if not mismatched_gates:
+                    self.ui_widget.error_label.setText("")
 
     # Method to convert a byte to an array of indices corresponding to bits set to 1
     def byte_2_ind_array(self, byte):

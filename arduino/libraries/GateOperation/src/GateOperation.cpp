@@ -481,11 +481,9 @@ uint8_t GateOperation::setWallsToMove(uint8_t cyp_i, uint8_t byte_wall_state_new
 	}
 
 	// Set up/down move flags using bitwise comparison and exclude any walls with errors
-	C[cyp_i].bitWallMoveUpFlag = ~C[cyp_i].bitWallErrorFlag &
-								 ~C[cyp_i].bitWallPosition &
+	C[cyp_i].bitWallMoveUpFlag = ~C[cyp_i].bitWallPosition &
 								 byte_wall_state_new;
-	C[cyp_i].bitWallMoveDownFlag = ~C[cyp_i].bitWallErrorFlag &
-								   C[cyp_i].bitWallPosition &
+	C[cyp_i].bitWallMoveDownFlag = C[cyp_i].bitWallPosition &
 								   ~byte_wall_state_new;
 
 	// Bail if nothing to move
