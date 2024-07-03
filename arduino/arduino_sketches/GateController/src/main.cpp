@@ -1,11 +1,11 @@
 // ######################################
 
-// ============== main.ino ==============
+// ============== main.cpp ==============
 
 // ######################################
 
 /**
- * @file Main Arduino INO file for running the maze.
+ * @file Main Arduino file for running the maze.
  *
  * @note Set DB_VERBOSE to 0 and use the "Serial" HardwareSerial port
  * for SerCom(Serial) initialation if you are performing serial
