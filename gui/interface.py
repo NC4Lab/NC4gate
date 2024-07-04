@@ -94,6 +94,19 @@ class GateControlApp(QMainWindow):
         #   'active_gates': List of integers for the active (up) gates for the entry.
         self.cypress_list = []
 
+    # Method to handle the window close event
+    def closeEvent(self, event):
+        # Close the serial connection if it is open
+        if self.arduino and self.arduino.isOpen():
+            self.arduino.close()
+
+        # Stop the timers
+        self.timer_check_serial.stop()
+        self.timeout_timer.stop()
+
+        # Accept the event to proceed with the window close
+        event.accept()  
+
     # Method to initialize the UI
     def init_ui(self):
         # Set the window title
