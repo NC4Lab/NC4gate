@@ -25,7 +25,7 @@
 //============ VARIABLES ===============
 
 // Global variables
-bool DB_VERBOSE = 1;  //< set to control debugging behavior [0:silent, 1:verbose]
+bool DB_VERBOSE = 0;  //< set to control debugging behavior [0:silent, 1:verbose]
 bool DO_ECAT_SPI = 1; //< set to control block SPI [0:dont start, 1:start]
 
 // Gate operation setup
@@ -34,7 +34,7 @@ uint16_t dtMoveTimeout = 2000; // timeout for wall movement (ms)
 
 // Initialize class instances for local libraries
 GateDebug Dbg;                                  // Debugging class
-SerialCom SerCom(Serial1);                       // Serial communication class
+SerialCom SerCom(Serial);                      // Serial communication class
 GateOperation WallOper(pwmDuty, dtMoveTimeout); // Wall operation class
 
 //=============== SETUP =================
@@ -42,8 +42,10 @@ void setup()
 {
   // Setup serial coms for serial monoitor
   /// @note Comment this out if SerialCom is using the "Serial" HardwareSerial port
-	Serial.begin(115200);
-	delay(100);
+  // Serial.begin(115200);
+  // delay(100);
+  
+  Dbg.printMsg(Dbg.MT::HEAD1, "UPLOADING TO ARDUNO...");
 
   // Setup serial coms for SerialCom
   SerCom.begin(115200);
@@ -51,16 +53,11 @@ void setup()
   // Initialize I2C for Cypress chips
   WallOper.CypCom.i2cInit();
 
-// Print which microcontroller is active
-#ifdef ARDUINO_AVR_UNO
-  Dbg.printMsg(Dbg.MT::HEAD1, "FINISHED UPLOADING TO ARDUNO UNO");
-#endif
-#ifdef __AVR_ATmega2560__
-  Dbg.printMsg(Dbg.MT::HEAD1, "FINISHED UPLOADING TO ARDUNO MEGA");
-#endif
-#ifdef ARDUINO_SAM_DUE
-  Dbg.printMsg(Dbg.MT::HEAD1, "FINISHED UPLOADING TO ARDUNO DUE");
-#endif
+  // Print available I2C addresses for debuggin
+  WallOper.CypCom.i2cScan();
+
+  // Print which microcontroller is active
+  Dbg.printMsg(Dbg.MT::HEAD2, "FINISHED UPLOADING TO ARDUNO");
 }
 
 //=============== LOOP ==================
