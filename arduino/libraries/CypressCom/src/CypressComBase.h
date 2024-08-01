@@ -82,43 +82,4 @@
 #define MAX_PIN 8
 #define MAX_PORT 6
 
-// Hex address list for Cypress chips
-/*
-* MATLAB CODE
-% Generate 49 sequential values with 0 in the first bit
-n = 49;
-dec_values = zeros(1, n);
-hex_values = cell(1, n);
-for i = 1:n
-	bin_7_str = dec2bin(i, 7); % convert decimal value to 7-bit binary string
-	bin_8_str = [bin_7_str '0']; % replace first bit with 0
-	dec_values(i) = bin2dec(bin_8_str); % convert binary string to decimal value
-	hex_values{i} = dec2hex(dec_values(i));
-end
-% Print as hex to paist into Arduino code
-fprintf('\r')
-for i = 1:n
-		fprintf('0x%s, ', hex_values{i})
-		if mod(i,5)==0
-			fprintf('\r')
-		end
-end
-fprintf('\r')
-*/
-
-/*
-listAddr[49] = {
-0x2, 0x4, 0x6, 0x8, 0xA,
-0xC, 0xE, 0x10, 0x12, 0x14,
-0x16, 0x18, 0x1A, 0x1C, 0x1E,
-0x20, 0x22, 0x24, 0x26, 0x28,
-0x2A, 0x2C, 0x2E, 0x30, 0x32,
-0x34, 0x36, 0x38, 0x3A, 0x3C,
-0x3E, 0x40, 0x42, 0x44, 0x46,
-0x48, 0x4A, 0x4C, 0x4E, 0x50,
-0x52, 0x54, 0x56, 0x58, 0x5A,
-0x5C, 0x5E, 0x60, 0x62
-//};
-*/
-
 #endif
