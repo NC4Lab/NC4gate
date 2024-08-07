@@ -24,49 +24,7 @@ int pinDownPWM = 4; // Down PWM pin (brown/white wire)
 uint8_t pwmUpFreq = 255;   // PWM dowm movement frequency [0, 255]
 uint8_t pwmDownFreq = 255; // PWM up movement frequency [0, 255]
 
-// Track switch state and the number of up/down cycles
-double cycleCount = 0;
-
 //=============== FUNCTIONS =============
-
-/**
- * @brief Print the latency for up and down movments for testing.
- *
- * @param switch_state The current switch state [1:down, 2:up].
- */
-void printTimeBetweenSwitches(byte switch_state)
-{
-  unsigned long current_time = millis(); // Get the current time
-  static unsigned long dt_up = 0;        // Duration from up to down
-  static unsigned long dt_down = 0;      // Duration from down to up
-  static unsigned long ts_last_down = 0; // Last time the down switch was triggered
-  static unsigned long ts_last_up = 0;   // Last time the up switch was triggered
-
-  // Down switch triggered
-  if (switch_state == 1)
-  {
-    if (ts_last_up != 0) // Check if up switch was previously triggered
-    {
-      dt_up = current_time - ts_last_up;
-      Serial.print("DT Down: ");
-      Serial.print(dt_up);
-      Serial.println(" ms");
-    }
-    ts_last_down = current_time; // Update last down switch trigger time
-  }
-  // Up switch triggered
-  else if (switch_state == 2)
-  {
-    if (ts_last_down != 0) // Check if down switch was previously triggered
-    {
-      dt_down = current_time - ts_last_down;
-      Serial.print("DT Up: ");
-      Serial.print(dt_down);
-      Serial.println(" ms");
-    }
-    ts_last_up = current_time; // Update last up switch trigger time
-  }
-}
 
 /**
  * @brief Check the limit switches to see if they are triggered.
@@ -82,20 +40,11 @@ byte checkLimitSwitches()
   {
     // Serial.println("Down limit switch triggered");
     switch_state = 1;
-    // Increment the cycle count for down movement
-    cycleCount++;
-    // Print the number of cycles
-    Serial.print("Cycles: ");
-    Serial.println(cycleCount);
-    // Print the time between switches
-    printTimeBetweenSwitches(switch_state);
   }
   else if (digitalRead(pinUpIO) == HIGH && switch_state != 2)
   {
     // Serial.println("Up limit switch triggered");
     switch_state = 2;
-    // Print the time between switches
-    printTimeBetweenSwitches(switch_state);
   }
   else
   {
