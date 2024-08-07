@@ -1,4 +1,9 @@
-# GUI
+# Arduino setup
+We recomend using an Arduino Mega or an equivalent Arduino that 
+uses 5 V logic and has comparable flash memory storage (i.e., 256 KB) 
+- Upload the cypress_gate_controller sketch to your Arduino 
+
+# GUI setup
 
 ## Install Conda 
 https://www.anaconda.com/download/success
@@ -114,3 +119,12 @@ conda env export > nc4gate_env.yml
 | 1  | 1  | 1  | 1  | 0  | 1  | 01011110 | 0x5E  |
 | 0  | 0  | 0  | 0  | 1  | 1  | 01100000 | 0x60  |
 | 1  | 0  | 0  | 0  | 1  | 1  | 01100010 | 0x62  |
+
+# GUI opperation
+- Make sure the sketch is loaded on your Arduino.
+- Make sure all components are powered.
+- Run gui\interface.py
+- Select the COM port you are using for serial communication from the dropdown.
+- Press the 'Initilize System' button. You should see the gates raise and then lower. The panels associated with any active Cypress boards will be highlighted as enabled as well any detected NC4gates.
+- Select the gates you want to be raised using the 'Gate x' toggle buttons.
+- Press the 'Send Gates' button to send the command to change the gate configuration.  

@@ -21,8 +21,11 @@ int pinUpPWM = 5;   // Up PWM pin (blue wire)
 int pinDownPWM = 4; // Down PWM pin (brown/white wire)
 
 // PWM settings
-uint8_t pwmUpFreq = 200;   // PWM dowm movement frequency [0, 255]
-uint8_t pwmDownFreq = 200; // PWM up movement frequency [0, 255]
+uint8_t pwmUpFreq = 255;   // PWM dowm movement frequency [0, 255]
+uint8_t pwmDownFreq = 255; // PWM up movement frequency [0, 255]
+
+// Track switch state and the number of up/down cycles
+double cycleCount = 0;
 
 //=============== FUNCTIONS =============
 /**
@@ -32,18 +35,29 @@ uint8_t pwmDownFreq = 200; // PWM up movement frequency [0, 255]
  */
 byte checkLimitSwitches()
 {
+  static byte switch_state = 255; // [1:down, 2:up]
+
   // Check the limit switches
-  if (digitalRead(pinDownIO) == HIGH)
+  if (digitalRead(pinDownIO) == HIGH && switch_state != 1)
   {
-    Serial.println("Down limit switch triggered");
-    return 1;
+    //Serial.println("Down limit switch triggered");
+    switch_state = 1;
+    // Increment the cycle count for down movement
+    cycleCount++;
+    // Print the number of cycles
+    Serial.print("Number of cycles: ");
+    Serial.println(cycleCount);
   }
-  if (digitalRead(pinUpIO) == HIGH)
+  else if (digitalRead(pinUpIO) == HIGH && switch_state != 2)
   {
-    Serial.println("Up limit switch triggered");
-    return 2;
+    //Serial.println("Up limit switch triggered");
+    switch_state = 2;
   }
-  return 0;
+  else
+  {
+    return 0;
+  }
+  return switch_state;
 }
 
 //=============== SETUP =================
@@ -62,7 +76,7 @@ void setup()
   pinMode(pinUpPWM, OUTPUT);
   pinMode(pinDownPWM, OUTPUT);
 
-  while(true);
+  // while(true);
 }
 
 //=============== LOOP ==================
