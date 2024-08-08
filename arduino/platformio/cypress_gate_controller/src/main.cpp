@@ -44,7 +44,7 @@ void setup()
   /// @note Comment this out if SerialCom is using the "Serial" HardwareSerial port
   Serial.begin(115200);
   delay(100);
-  
+
   Dbg.printMsg(Dbg.MT::HEAD1, "UPLOADING TO ARDUNO...");
 
   // Setup serial coms for SerialCom

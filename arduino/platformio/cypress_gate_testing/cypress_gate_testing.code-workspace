@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../libraries"
+		}
+	],
+	"settings": {
+		"ros.distro": "noetic"
+	}
+}
