@@ -12,14 +12,23 @@
 /// @param serial: Reference to the HardwareSerial object to be used for communication.
 SerialCom::SerialCom(HardwareSerial &serial) : serial(serial) {}
 
-/// @brief Begins serial communication with the specified baud rate.
+/// @brief Initialize serial communication with the specified baud rate.
 ///
 /// @param baud: The baud rate for serial communication.
-void SerialCom::begin(unsigned long baud)
+void SerialCom::initSerial(unsigned long baud)
 {
+    // Begin serial communication with the specified baud rate
     serial.begin(baud);
 
-    // Clear the buffer
+    // Wait for Serial to initialize
+    while (!serial)
+        ;
+    delay(100); // Give some time to ensure the buffer is clean
+
+    // Ensure all outgoing data is transmitted
+    serial.flush();
+
+    // Clear the input buffer by reading any remaining data
     while (serial.available())
     {
         serial.read();

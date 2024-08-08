@@ -7,10 +7,11 @@ from PyQt5.QtCore import QTimer, QSize
 from PyQt5.QtGui import QIcon, QFont, QPixmap
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.uic import loadUi
+from PyQt5.QtCore import QThread, pyqtSignal
 from datetime import datetime
 import serial
 import serial.tools.list_ports
-from PyQt5.QtCore import QThread, pyqtSignal
+import time
 
 # Define the main application class inheriting from QMainWindow
 
@@ -52,7 +53,7 @@ class GateControlApp(QMainWindow):
         # Setup arduino serial communication stuff
         self.arduino = None
         self.timer_check_serial = QTimer(self)
-        self.timer_check_serial.timeout.connect(self.check_receive_message)
+        self.timer_check_serial.timeout.connect(self.check_receive_serial)
         self.pending_message = None
 
         # Define start and end bytes
@@ -93,19 +94,6 @@ class GateControlApp(QMainWindow):
         #   'enabled_gates': List of integers for the enabled gates for the entry.
         #   'active_gates': List of integers for the active (up) gates for the entry.
         self.cypress_list = []
-
-    # Method to handle the window close event
-    def closeEvent(self, event):
-        # Close the serial connection if it is open
-        if self.arduino and self.arduino.isOpen():
-            self.arduino.close()
-
-        # Stop the timers
-        self.timer_check_serial.stop()
-        self.timeout_timer.stop()
-
-        # Accept the event to proceed with the window close
-        event.accept()  
 
     # Method to initialize the UI
     def init_ui(self):
@@ -163,21 +151,18 @@ class GateControlApp(QMainWindow):
     # Method to handle cypress initialization button press
     def callback_init_system_button(self):
 
-        # Get selected com port
-        com_port = self.ui_widget.com_port_combo_box.currentText()
+        # Initialize serial communication with the selected COM port
+        self.init_serial()
 
-        # Open a serial connection to the Arduino on the selected COM port
-        self.arduino = serial.Serial(com_port, 115200, timeout=1, dsrdtr=True)
+        # Send the initialize command to Arduino
+        self.send_serial(0, 0)
 
-        # Send the command to Arduino
-        self.send_message(0, 0)
-
-        print(f"Initializing System Through COM Port: {com_port}")
+        print(f"Initializing System")
 
     # Method to handle gates initialization button press
     def callback_init_gates_button(self):
         # Send init gates message
-        self.send_message(1, 0)
+        self.send_serial(1, 0)
 
         print(f"Initializing Gates")
 
@@ -209,10 +194,54 @@ class GateControlApp(QMainWindow):
                 f"Send move command for Cypress {i} Gates {active_gates_array}")
 
         # Send the gate configuration message
-        self.send_message(2, active_gates_byte_array)
+        self.send_serial(2, active_gates_byte_array)
+
+    # Method to handle the window close event
+    def closeEvent(self, event):
+        # Close the serial connection if it is open
+        if self.arduino and self.arduino.isOpen():
+            self.arduino.close()
+
+        # Stop the timers
+        self.timer_check_serial.stop()
+        self.timeout_timer.stop()
+
+        # Accept the event to proceed with the window close
+        event.accept()  
+
+    # Method to initialize serial coms
+    def init_serial(self):
+
+        # Get selected com port
+        com_port = self.ui_widget.com_port_combo_box.currentText()
+
+        # Open a serial connection to the Arduino on the selected COM port
+        self.arduino = serial.Serial(com_port, 115200, timeout=1)
+
+        # Wait for the serial connection to initialize
+        time.sleep(1)  
+
+        # Ensure all outgoing data is transmitted
+        self.arduino.flush()  # Flush the output buffer (block until all data is written)
+        
+        # Clear the input buffer by discarding all incoming data
+        self.arduino.reset_input_buffer()
+
+        # # TEMP Test the serial connection
+        # self.arduino.write(b'Hello Arduino\n')  # Send a test message
+        # while True:
+        #     if self.arduino.in_waiting > 0:
+        #         line = self.arduino.readline()
+        #         try:
+        #             decoded_line = line.decode('utf-8').rstrip()
+        #             print(f"Received (decoded): {decoded_line}")
+        #         except UnicodeDecodeError:
+        #             print(f"Received (raw): {line}")
+
+        print(f"Initializing Serial Through COM Port: {com_port}")
 
     # Method to send a message to the Arduino via serial
-    def send_message(self, msg_type, data):
+    def send_serial(self, msg_type, data):
 
         if self.arduino and self.arduino.isOpen():
             # Convert the message type to a single byte
@@ -259,7 +288,7 @@ class GateControlApp(QMainWindow):
             print("Arduino serial port is not open. Please connect to Arduino first.")
 
     # Method to check for a response from the Arduino
-    def check_receive_message(self):
+    def check_receive_serial(self):
         if self.arduino and self.arduino.in_waiting:
             message = self.arduino.read_all()  # Read the response as bytes
 

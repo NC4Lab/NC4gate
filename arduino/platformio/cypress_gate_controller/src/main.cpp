@@ -48,7 +48,7 @@ void setup()
   Dbg.printMsg(Dbg.MT::HEAD1, "UPLOADING TO ARDUNO...");
 
   // Setup serial coms for SerialCom
-  SerCom.begin(115200);
+  SerCom.initSerial(115200);
 
   // Initialize I2C for Cypress chips
   WallOper.CypCom.i2cInit();

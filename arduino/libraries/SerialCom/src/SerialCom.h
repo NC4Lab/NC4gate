@@ -40,7 +40,7 @@ public:
     SerialCom(HardwareSerial &serial);
 
 public:
-    void begin(unsigned long baud);
+    void initSerial(unsigned long baud);
 
 public:
     bool receiveMessage();
