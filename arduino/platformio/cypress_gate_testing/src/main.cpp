@@ -30,7 +30,7 @@ bool DO_ECAT_SPI = 1; //< set to control block SPI [0:dont start, 1:start]
 
 // Gate operation setup
 uint8_t pwmDuty = 255;         // PWM duty for all walls [0-255]
-uint16_t dtMoveTimeout = 2000; // timeout for wall movement (ms)
+uint16_t dtMoveTimeout = 1000; // timeout for wall movement (ms)
 
 // Indeces of walls to test
 uint8_t wallInds[5] = {0, 1, 2, 3, 4};
@@ -116,6 +116,7 @@ void wallsCycleTest()
   // Loop throuh walls
   for (uint8_t i = 0; i < 5; i++)
   {
+    unsigned long ts = millis();
 
     // Skip if wall has failed
     if (runStatus[wallInds[i]] != 1)
@@ -136,6 +137,10 @@ void wallsCycleTest()
     {
       cycleCount[wallInds[i]]++;
     }
+
+    // add delay if 2 seconds have not passed
+    while (millis() - ts < 2000)
+      ;
   }
 
   // Print cycles and status
@@ -225,8 +230,8 @@ void setup()
   // Print which microcontroller is active
   Dbg.printMsg(Dbg.MT::HEAD2, "FINISHED SETUP");
 
-  // while (true)
-  //   ;
+  while (true)
+    ;
 }
 
 //=============== LOOP ==================
