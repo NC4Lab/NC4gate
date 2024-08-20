@@ -25,7 +25,7 @@
 //============ VARIABLES ===============
 
 // Global variables
-bool DB_VERBOSE = 0;  //< set to control debugging behavior [0:silent, 1:verbose]
+bool DB_VERBOSE = 1;  //< set to control debugging behavior [0:silent, 1:verbose]
 bool DO_ECAT_SPI = 1; //< set to control block SPI [0:dont start, 1:start]
 
 // Gate operation setup
@@ -40,6 +40,9 @@ unsigned long cycleCount[5] = {0, 0, 0, 0, 0};
 
 // Track response from wall operation
 uint8_t runStatus[5] = {1, 1, 1, 1, 1};
+
+// // Track failure time
+// unsigned long tsFail[5] = {0, 0, 0, 0, 0};
 
 // Track timing
 unsigned long tsUp[5] = {0, 0, 0, 0, 0};
@@ -62,25 +65,25 @@ GateOperation WallOper(pwmDuty, dtMoveTimeout); // Wall operation class
  */
 bool runWalls(uint8_t wall_ind, uint8_t run_dir)
 {
+  // Reset all wall bits in flag
+  WallOper.C[0].bitWallMoveUpFlag = 0;
+  WallOper.C[0].bitWallMoveDownFlag = 0;
 
   // Run walls up
   if (run_dir == 1)
   {
+    // Manually set walls to move up
+    bitWrite(WallOper.C[0].bitWallMoveUpFlag, wall_ind, 1);
 
-    // Set walls to move up
-    uint8_t byte_wall_state_new = 0;
-    bitWrite(byte_wall_state_new, wall_ind, 1);
-
-    // Set walls to move up and run
+    // Run walls up
     DB_VERBOSE = 0;
-    WallOper.setWallsToMove(0, byte_wall_state_new);
-    runStatus[wall_ind] = WallOper.moveWallsConductor();
+    uint8_t run_status = WallOper.moveWallsConductor();
+    runStatus[wall_ind] = runStatus[wall_ind] == 1 ? run_status : 1;
     DB_VERBOSE = 1;
 
     // Check status
     if (runStatus[wall_ind] != 1)
     {
-      Dbg.printMsg(Dbg.MT::ERROR, "Error moving wall up: wall[%d] resp[%d]", wall_ind, runStatus[wall_ind]);
       return false;
     }
   }
@@ -88,17 +91,18 @@ bool runWalls(uint8_t wall_ind, uint8_t run_dir)
   // Run walls down
   if (run_dir == 0)
   {
+    // Manually set walls to move down
+    bitWrite(WallOper.C[0].bitWallMoveDownFlag, wall_ind, 1);
 
-    // Set walls to move back down and run
+    // Run walls up
     DB_VERBOSE = 0;
-    WallOper.setWallsToMove(0, 0);
-    runStatus[wall_ind] = WallOper.moveWallsConductor();
+    uint8_t run_status = WallOper.moveWallsConductor();
+    runStatus[wall_ind] = runStatus[wall_ind] == 1 ? run_status : 1;
     DB_VERBOSE = 1;
 
     // Check status
     if (runStatus[wall_ind] != 1)
     {
-      Dbg.printMsg(Dbg.MT::ERROR, "Error moving wall down: wall[%d] resp[%d]", wall_ind, runStatus[wall_ind]);
       return false;
     }
   }
@@ -111,18 +115,11 @@ bool runWalls(uint8_t wall_ind, uint8_t run_dir)
  */
 void wallsCycleTest()
 {
-  bool is_run = false;
-
   // Loop throuh walls
   for (uint8_t i = 0; i < 5; i++)
   {
     unsigned long ts = millis();
-
-    // Skip if wall has failed
-    if (runStatus[wallInds[i]] != 1)
-    {
-      continue;
-    }
+    bool is_run = false;
 
     // Run wall up
     is_run = runWalls(wallInds[i], 1);
@@ -133,6 +130,7 @@ void wallsCycleTest()
       is_run = runWalls(wallInds[i], 0);
     }
 
+    // Increment cycle count
     if (is_run)
     {
       cycleCount[wallInds[i]]++;
@@ -226,9 +224,18 @@ void setup()
 
   // Initialize cypress chips
   WallOper.initCypress();
+  delay(100);
 
   // Print which microcontroller is active
   Dbg.printMsg(Dbg.MT::HEAD2, "FINISHED SETUP");
+
+  // // Run walls up and down
+  for (uint8_t i = 0; i < 5; i++)
+  {
+    runWalls(wallInds[i], 1);
+    delay(100);
+    runWalls(wallInds[i], 0);
+  }
 
   while (true)
     ;

@@ -472,14 +472,6 @@ uint8_t GateOperation::_setupCypressPWM(uint8_t address)
 /// @endcode
 uint8_t GateOperation::setWallsToMove(uint8_t cyp_i, uint8_t byte_wall_state_new)
 {
-
-	// Bail if chamber is flagged with I2C error
-	if (C[cyp_i].i2cStatus != 0)
-	{
-		_Dbg.printMsg(_Dbg.MT::WARNING, "SKIPPED: WALL MOVE SETUP: I2C Flagged: chamber[%d] i2c_status[%d]", cyp_i, C[cyp_i].i2cStatus);
-		return 0;
-	}
-
 	// Set up/down move flags using bitwise comparison and exclude any walls with errors
 	C[cyp_i].bitWallMoveUpFlag = ~C[cyp_i].bitWallPosition &
 								 byte_wall_state_new;
@@ -726,7 +718,6 @@ uint8_t GateOperation::_monitorWallsMove(uint8_t cyp_i)
 			bitWrite(C[cyp_i].bitWallMoveDownFlag, wall_n, 0); // reset wall bit in flag
 
 			/// Unset error flag
-			/// @todo: Consider if error flag should be reset here
 			bitWrite(C[cyp_i].bitWallErrorFlag, wall_n, 0);
 
 			// Flag to update pwm

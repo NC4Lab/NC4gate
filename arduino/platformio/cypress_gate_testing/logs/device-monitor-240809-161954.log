@@ -1,0 +1,18 @@
+
+[INFO] [00:00:099]: ===================================UPLOADING TO ARDUNO...===================================
+
+[INFO] [00:00:166]: I2C Devices Found:
+[INFO] [00:00:167]: 	0) 0x22
+
+[INFO] [00:00:168]: ============================START: WALL OPPERATION INITIALIZATION============================
+[INFO] [00:00:178]: ==========================FINISHED: WALL OPPERATION INITIALIZATION==========================
+
+
+[INFO] [00:00:187]: ================================START: CYPRESS INITIALIZATION================================
+[INFO] [00:00:197]: INITIALIZATING: Chamber[0] Cypress Chip[0x22]
+[INFO] [00:00:618]: FINISHED: Cypress Chip Setup: chamber=[0|0x22] status[0]
+[INFO] [00:00:721]: FINISHED: Cypress IO Setup: chamber=[0|0x22] status[0]
+[INFO] [00:00:850]: FINISHED: Cypress PWM Setup: chamber=[0|0x22] status[0]
+[INFO] [00:00:852]: =========================FINISHED: CYPRESS INITIALIZATION: STATUS[0]=========================
+
+[INFO] [00:00:862]: _______________________________________FINISHED SETUP_______________________________________
