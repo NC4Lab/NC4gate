@@ -237,8 +237,8 @@ void setup()
     runWalls(wallInds[i], 0);
   }
 
-  while (true)
-    ;
+  // while (true)
+  //   ;
 }
 
 //=============== LOOP ==================
