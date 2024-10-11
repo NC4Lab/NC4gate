@@ -14,6 +14,16 @@
 
 //============ VARIABLES ===============
 
+// Flags for testing
+bool doLimitSwitchCheck = false;
+bool doLimitSwitchPrint = false;
+bool doRunStatePrint = false;
+bool doTimePrint = false;
+
+// Timing variables
+const unsigned long dtRun = 5000;     // Minimum delay between loops
+const unsigned long dtTimeout = 2000; // Timeout for the limit switch check
+
 // Number of walls
 const int NWALLS = 5;
 
@@ -27,6 +37,9 @@ int pinDownIO[5] = {22, 24, 26, 28, 30}; // Down limit switch pin (green wire)
 uint8_t pwmUpFreq = 255;   // PWM dowm movement frequency [0, 255]
 uint8_t pwmDownFreq = 255; // PWM up movement frequency [0, 255]
 
+// Limit switch state
+byte switchState[5] = {0, 0, 0, 0, 0}; // [1:down, 2:up]
+
 // Track the number of cycles
 unsigned long cycleCount[5] = {0, 0, 0, 0, 0};
 
@@ -39,33 +52,35 @@ unsigned long cycleCount[5] = {0, 0, 0, 0, 0};
  */
 byte checkLimitSwitches(int i_wall)
 {
-  static byte switch_state[NWALLS] = {0}; // [1:down, 2:up]
-
   // Check the down switch
-  if (digitalRead(pinDownIO[i_wall]) == HIGH && switch_state[i_wall] != 1)
+  if (digitalRead(pinDownIO[i_wall]) == HIGH && switchState[i_wall] != 1)
   {
-    switch_state[i_wall] = 1;
-    // Increment the cycle count for down movement
-    cycleCount[i_wall]++;
+    switchState[i_wall] = 1;
 
-    // // TEMP
-    // Serial.print("Down switch triggered: ");
-    // Serial.println(i_wall);
+    // Print switch triggered
+    if (doLimitSwitchCheck || doLimitSwitchPrint)
+    {
+      Serial.print("Down switch triggered: ");
+      Serial.println(i_wall);
+    }
   }
   // Check the up switch
-  else if (digitalRead(pinUpIO[i_wall]) == HIGH && switch_state[i_wall] != 2)
+  else if (digitalRead(pinUpIO[i_wall]) == HIGH && switchState[i_wall] != 2)
   {
-    switch_state[i_wall] = 2;
+    switchState[i_wall] = 2;
 
-    // // TEMP
-    // Serial.print("UP switch triggered: ");
-    // Serial.println(i_wall);
+    // Print switch triggered
+    if (doLimitSwitchCheck || doLimitSwitchPrint)
+    {
+      Serial.print("UP switch triggered: ");
+      Serial.println(i_wall);
+    }
   }
   else
   {
     return 0;
   }
-  return switch_state[i_wall];
+  return switchState[i_wall];
 }
 
 /**
@@ -79,51 +94,88 @@ void runWalls(int run_dir)
   unsigned long start_time = millis(); // Record the start time
 
   // Run each wall
-  for (int i = 0; i < NWALLS; i++)
+  for (int i_wall = 0; i_wall < NWALLS; i_wall++)
   {
     if (run_dir == 1)
     {
       // Move the wall down
-      analogWrite(pinDownPWM[i], pwmDownFreq);
+      analogWrite(pinUpPWM[i_wall], 0);
+      analogWrite(pinDownPWM[i_wall], pwmDownFreq);
+
+      if (doRunStatePrint)
+      {
+        Serial.print("Start run wall down: wall=");
+        Serial.print(i_wall);
+        Serial.print(" state=");
+        Serial.println(switchState[i_wall]);
+      }
     }
     else if (run_dir == 2)
     {
       // Move the wall up
-      analogWrite(pinUpPWM[i], pwmUpFreq);
+      analogWrite(pinDownPWM[i_wall], 0);
+      analogWrite(pinUpPWM[i_wall], pwmUpFreq);
+
+      if (doRunStatePrint)
+      {
+        Serial.print("Start run wall up: wall=");
+        Serial.print(i_wall);
+        Serial.print(" state=");
+        Serial.println(switchState[i_wall]);
+      }
     }
   }
 
-  // Check each wall, with a 2.5-second timeout
-  while (millis() - start_time < 2500)
+  // Check each wall, with a timeout
+  while (millis() - start_time < dtTimeout)
   {
-    for (int i = 0; i < NWALLS; i++)
+    for (int i_wall = 0; i_wall < NWALLS; i_wall++)
     {
-      if (is_ran_arr[i] == true)
+      if (is_ran_arr[i_wall])
       {
         continue;
       }
       if (run_dir == 1)
       {
         // Check for the down limit switch
-        if (checkLimitSwitches(i) == 1)
+        if (checkLimitSwitches(i_wall) == 1)
         {
-          // Stop the wall
-          analogWrite(pinUpPWM[i], 0);
-          analogWrite(pinDownPWM[i], 0);
+          // Increment the cycle count for down movement
+          cycleCount[i_wall]++;
 
-          is_ran_arr[i] = true;
+          // Stop the wall
+          analogWrite(pinUpPWM[i_wall], 0);
+          analogWrite(pinDownPWM[i_wall], 0);
+
+          is_ran_arr[i_wall] = true;
+
+          if (doRunStatePrint)
+          {
+            Serial.print("Stop run wall down: wall=");
+            Serial.print(i_wall);
+            Serial.print(" state=");
+            Serial.println(switchState[i_wall]);
+          }
         }
       }
       else if (run_dir == 2)
       {
         // Check for the up limit switch
-        if (checkLimitSwitches(i) == 2)
+        if (checkLimitSwitches(i_wall) == 2)
         {
           // Stop the wall
-          analogWrite(pinUpPWM[i], 0);
-          analogWrite(pinDownPWM[i], 0);
+          analogWrite(pinUpPWM[i_wall], 0);
+          analogWrite(pinDownPWM[i_wall], 0);
 
-          is_ran_arr[i] = true;
+          is_ran_arr[i_wall] = true;
+
+          if (doRunStatePrint)
+          {
+            Serial.print("Stop run wall up: wall=");
+            Serial.print(i_wall);
+            Serial.print(" state=");
+            Serial.println(switchState[i_wall]);
+          }
         }
       }
     }
@@ -151,29 +203,32 @@ void setup()
   delay(100);
 
   // Initialize the limit switches
-  for (int i = 0; i < NWALLS; i++)
+  for (int i_wall = 0; i_wall < NWALLS; i_wall++)
   {
-    pinMode(pinDownIO[i], INPUT);
-    pinMode(pinUpIO[i], INPUT);
+    pinMode(pinDownIO[i_wall], INPUT);
+    pinMode(pinUpIO[i_wall], INPUT);
   }
 
   // Initialize the PWM pins
-  for (int i = 0; i < NWALLS; i++)
+  for (int i_wall = 0; i_wall < NWALLS; i_wall++)
   {
-    pinMode(pinUpPWM[i], OUTPUT);
-    pinMode(pinDownPWM[i], OUTPUT);
-    analogWrite(pinDownPWM[i], 0);
-    analogWrite(pinUpPWM[i], 0);
+    pinMode(pinUpPWM[i_wall], OUTPUT);
+    pinMode(pinDownPWM[i_wall], OUTPUT);
+    analogWrite(pinDownPWM[i_wall], 0);
+    analogWrite(pinUpPWM[i_wall], 0);
   }
 
   // Move the gate down
-  runWalls(1);
-  delay(1000);
+  if (!doLimitSwitchCheck)
+  {
+    runWalls(1);
+    delay(1000);
+  }
 
   // Reset the cycle count
-  for (int i = 0; i < NWALLS; i++)
+  for (int i_wall = 0; i_wall < NWALLS; i_wall++)
   {
-    cycleCount[i] = 0;
+    cycleCount[i_wall] = 0;
   }
 
   while (true)
@@ -183,12 +238,28 @@ void setup()
 //=============== LOOP ==================
 void loop()
 {
-  // // TEMP
-  // for (int i = 0; i < NWALLS; i++)
-  // {
-  //   checkLimitSwitches(i);
-  // }
-  // return;
+  static unsigned long previous_millis = 0; // Store the last time the loop ran
+  unsigned long current_millis = millis();  // Get the current time
+  unsigned long loop_dt = current_millis - previous_millis;
+
+  // Run limit switch test
+  if (doLimitSwitchCheck)
+  {
+    for (int wall_i = 0; wall_i < NWALLS; wall_i++)
+    {
+      checkLimitSwitches(wall_i);
+    }
+    return;
+  }
+
+  // Check if enough time has passed
+  if (loop_dt < dtRun)
+  {
+    return;
+  }
+
+  // Update the last execution time
+  previous_millis = current_millis;
 
   // Run wall up
   runWalls(2);
@@ -198,4 +269,13 @@ void loop()
 
   // Print the cycles
   printCycleCounts();
+
+  // Print the time
+  if (doTimePrint)
+  {
+    Serial.print("Time elapsed: total=");
+    Serial.print(current_millis);
+    Serial.print(" loop=");
+    Serial.println(loop_dt);
+  }
 }

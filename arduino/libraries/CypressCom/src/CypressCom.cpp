@@ -36,7 +36,7 @@ uint8_t CypressCom::i2cScan()
 	uint8_t list__err_code[128] = {0};
 
 	// Loop and test all 128 possible addresses
-	for (address = 1; address < 127; address++)
+	for (address = 0; address < 127; address++)
 	{
 		// Track dt for errors
 		_Dbg.dtTrack(1);
