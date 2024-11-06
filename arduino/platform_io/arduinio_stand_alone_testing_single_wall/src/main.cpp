@@ -143,8 +143,6 @@ void setup()
   analogWrite(pinDownPWM, 0);
   // Reset the count
   cycleCount = 0;
-
-  // while(true);
 }
 
 //=============== LOOP ==================

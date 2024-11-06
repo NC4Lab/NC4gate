@@ -226,10 +226,7 @@ void setup()
   WallOper.initCypress();
   delay(100);
 
-  // Print which microcontroller is active
-  Dbg.printMsg(Dbg.MT::HEAD2, "FINISHED SETUP");
-
-  // // Run walls up and down
+  // Run walls up and down
   for (uint8_t i = 0; i < 5; i++)
   {
     runWalls(wallInds[i], 1);
@@ -237,8 +234,7 @@ void setup()
     runWalls(wallInds[i], 0);
   }
 
-  // while (true)
-  //   ;
+  Dbg.printMsg(Dbg.MT::HEAD2, "FINISHED SETUP");
 }
 
 //=============== LOOP ==================

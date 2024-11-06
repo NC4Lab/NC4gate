@@ -68,8 +68,6 @@ void setup()
   // Initialize the PWM pins
   pinMode(pinUpPWM, OUTPUT);
   pinMode(pinDownPWM, OUTPUT);
-
-  // while(true);
 }
 
 //=============== LOOP ==================
