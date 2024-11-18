@@ -3,12 +3,31 @@ Software for the [NC4Gate system](https://osf.io/uy7ez/)
 # Arduino setup
 We recomend using an Arduino Mega or an equivalent Arduino that 
 uses 5 V logic and has comparable flash memory storage (i.e., 256 KB) 
-- Upload the cypress_gate_controller sketch to your Arduino 
 
+## Libraries
+Both the **cypress_gate_controller** (arduino\platform_io\cypress_gate_controller) and **cypress_gate_testing** (arduino\platform_io\cypress_gate_testing) packages require several custom libraries, which are included in this repository. 
+The provided packages are designed for use with the **Platform IO** of **Visual Studio Code (VS Code)**.  
+
+### Installing Platform IO for VS Code
+- Install [Visual Studio Code (VS Code)](https://code.visualstudio.com/), if it’s not already installed.
+- Open VS Code.
+- Go to the **Extensions** tab (or press `Ctrl+Shift+X`).
+- Search for "PlatformIO IDE" in the Extensions Marketplace.
+- Click **Install** to add PlatformIO to your VS Code environment.
+packages - Once installed, restart VS Code to enable PlatformIO.
+
+## Python GUI Operation
+- Make sure the sketch is loaded on your Arduino.
+- Make sure all components are powered.
+- Run `gui\interface.py`
+- Select the COM port you are using for serial communication from the dropdown.
+- Press the **Initilize System** button. You should see the gates raise and then lower. The panels associated with any active Cypress boards will be highlighted as enabled as well any detected NC4gates.
+- Select the gates you want to be raised using the **Gate x** toggle buttons.
+- Press the **Send Gates** button to send the command to change the gate configuration.
 # GUI setup
 
 ## Install Conda 
-https://www.anaconda.com/download/success
+https://www.anaconda.com/download
 
 ## Install QT
 Only needed if you are modifying the GUI
@@ -123,24 +142,3 @@ conda env export > nc4gate_env.yml
 | 1  | 0  | 0  | 0  | 1  | 1  | 01100010 | 0x62  |
 
 # Software
-
-## Arduino
-Both the **cypress_gate_controller** and **cypress_gate_testing** packages require several custom libraries, which are included in this repository. 
-The provided packages are designed for use with the **Platform IO** of **Visual Studio Code (VS Code)**.  
-
-### Installing Platform IO for VS Code
-- Install [Visual Studio Code (VS Code)](https://code.visualstudio.com/), if it’s not already installed.
-- Open VS Code.
-- Go to the **Extensions** tab (or press `Ctrl+Shift+X`).
-- Search for "PlatformIO IDE" in the Extensions Marketplace.
-- Click **Install** to add PlatformIO to your VS Code environment.
-packages - Once installed, restart VS Code to enable PlatformIO.
-
-## Python GUI Opperation
-- Make sure the sketch is loaded on your Arduino.
-- Make sure all components are powered.
-- Run `gui\interface.py`
-- Select the COM port you are using for serial communication from the dropdown.
-- Press the **Initilize System** button. You should see the gates raise and then lower. The panels associated with any active Cypress boards will be highlighted as enabled as well any detected NC4gates.
-- Select the gates you want to be raised using the **Gate x** toggle buttons.
-- Press the **Send Gates** button to send the command to change the gate configuration.
