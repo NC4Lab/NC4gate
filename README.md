@@ -1,3 +1,5 @@
+Software for the [NC4Gate system](https://osf.io/uy7ez/)
+
 # Arduino setup
 We recomend using an Arduino Mega or an equivalent Arduino that 
 uses 5 V logic and has comparable flash memory storage (i.e., 256 KB) 
