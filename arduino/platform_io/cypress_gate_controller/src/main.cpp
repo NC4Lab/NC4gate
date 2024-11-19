@@ -9,7 +9,11 @@
  *
  * @note Set DB_VERBOSE to 0 and use the "Serial" HardwareSerial port
  * for SerCom(Serial) initialation if you are performing serial
- * communication with the Arduino USB connection.
+ * communication with the Arduino USB connection. Otherwise, if you
+ * want to debug using hte Serial Monitor, you can set DB_VERBOSE to 1
+ * and use a USB to TTL Serial Converter connected to the "Serial1" 
+ * HardwareSerial port, or any other port that is available on your Arduino
+ * board. If using this approarch, set SerialCom SerCom(Serial1). 
  */
 
 // BUILT IN
@@ -25,7 +29,7 @@
 //============ VARIABLES ===============
 
 // Global variables
-bool DB_VERBOSE = 1;  //< set to control debugging behavior [0:silent, 1:verbose]
+bool DB_VERBOSE = 0;  //< set to control debugging behavior [0:silent, 1:verbose]
 bool DO_ECAT_SPI = 1; //< set to control block SPI [0:dont start, 1:start]
 
 // Gate operation setup
@@ -33,17 +37,17 @@ uint8_t pwmDuty = 255;         // PWM duty for all walls [0-255]
 uint16_t dtMoveTimeout = 2000; // timeout for wall movement (ms)
 
 // Initialize class instances for local libraries
-GateDebug Dbg;                                  // Debugging class
-SerialCom SerCom(Serial1);                      // Serial communication class
+GateDebug Dbg;                                  // Debugging class                    
 GateOperation WallOper(pwmDuty, dtMoveTimeout); // Wall operation class
+SerialCom SerCom(Serial); // Serial communication class
 
 //=============== SETUP =================
 void setup()
 {
   // Setup serial coms for serial monoitor
   /// @note Comment this out if SerialCom is using the "Serial" HardwareSerial port
-  Serial.begin(115200);
-  delay(100);
+  // Serial.begin(115200);
+  // delay(100);
 
   Dbg.printMsg(Dbg.MT::HEAD1, "UPLOADING TO ARDUNO...");
 

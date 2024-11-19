@@ -17,7 +17,11 @@ The provided packages are designed for use with the **Platform IO** of **Visual 
 packages - Once installed, restart VS Code to enable PlatformIO.
 
 ## Upload the software to Arduino
-***ADAM PLEASE FILL IN***
+- Open VS Code.  
+- Open the Platform IO project directory (e.g., `arduino\platform_io\cypress_gate_controller`)
+- Connect your Arduino board to your computer via USB.  
+- Select the port that is associated with your Arduino.
+- Go to the **Build** (check mark icon) dropdown and select **Upload**
 
 # GUI setup
 
