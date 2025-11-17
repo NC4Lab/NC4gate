@@ -5,7 +5,7 @@
 // ######################################
 
 /**
- * @file Main Arduino file for running the maze.
+ * @file Main Arduino file for running the NC4gate.
  */
 
 // BUILT IN
